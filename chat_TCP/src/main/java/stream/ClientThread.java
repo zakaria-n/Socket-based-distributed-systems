@@ -7,13 +7,16 @@ package stream;
 
 import java.io.*;
 import java.net.*;
+import java.util.List;
 
 public class ClientThread extends Thread {
 
     private Socket clientSocket;
-
-    ClientThread(Socket s) {
+    private List<Socket> participants;
+    
+    ClientThread(Socket s, List<Socket> p) {
         this.clientSocket = s;
+        this.participants= p;
     }
 
     /**
@@ -25,13 +28,25 @@ public class ClientThread extends Thread {
         try {
             BufferedReader socIn = null;
             socIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintStream socOut = new PrintStream(clientSocket.getOutputStream());
+            //PrintStream socOut = new PrintStream(clientSocket.getOutputStream());
             while (true) {
                 String line = socIn.readLine();
-                socOut.println(line);
+                //socOut.println(line);
+                broadcast("Message from " + clientSocket.getInetAddress() + ": " + line);
             }
         } catch (Exception e) {
             System.err.println("Error in EchoServer:" + e);
+        }
+    }
+    
+    public void broadcast(String message) {
+        try {
+            for (Socket s : participants) {
+                PrintStream socOut = new PrintStream(s.getOutputStream());
+                socOut.println(message);
+            }
+        } catch (Exception e){
+            System.err.println("Broadcast error: "+e);
         }
     }
 

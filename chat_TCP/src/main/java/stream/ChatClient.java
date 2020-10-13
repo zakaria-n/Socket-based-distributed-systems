@@ -25,8 +25,8 @@ public class ChatClient {
         BufferedReader socIn = null;
 
         if (args.length != 2) {
-          System.out.println("Usage: java EchoClient <EchoServer host> <EchoServer port>");
-          System.exit(1);
+            System.out.println("Usage: java EchoClient <EchoServer host> <EchoServer port>");
+            System.exit(1);
         }
 
         try {
@@ -46,15 +46,17 @@ public class ChatClient {
         }
                              
         String line;
+        ChatDisplay affichage = new ChatDisplay(echoSocket);
+        affichage.start();
         while (true) {
-        	line=stdIn.readLine();
-        	if (line.equals(".")) break;
-        	socOut.println(line);
-        	System.out.println("echo: " + socIn.readLine());
+            line=stdIn.readLine();
+            if (line.equals(".")) break;
+            socOut.println(line);
+            System.out.println(socIn.readLine());
         }
-      socOut.close();
-      socIn.close();
-      stdIn.close();
-      echoSocket.close();
+        socOut.close();
+        socIn.close();
+        stdIn.close();
+        echoSocket.close();
     }
 }
