@@ -52,7 +52,7 @@ public class ChatClient {
             line=stdIn.readLine();
             if (line.equals(".")) break;
             socOut.println(line);
-            System.out.println(socIn.readLine());
+            //System.out.println(socIn.readLine());
         }
         socOut.close();
         socIn.close();

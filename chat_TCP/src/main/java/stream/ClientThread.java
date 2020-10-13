@@ -32,7 +32,9 @@ public class ClientThread extends Thread {
             while (true) {
                 String line = socIn.readLine();
                 //socOut.println(line);
-                broadcast("Message from " + clientSocket.getInetAddress() + ": " + line);
+                if(line!=null) {
+                    broadcast("Message from " + clientSocket.getInetAddress() + ": " + line);
+                }
             }
         } catch (Exception e) {
             System.err.println("Error in EchoServer:" + e);
