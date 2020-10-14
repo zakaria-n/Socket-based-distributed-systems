@@ -42,7 +42,7 @@ public class ClientThread extends Thread {
         }
     }
 
-    public void broadcast(String message) {
+    public synchronized void broadcast(String message) {
         try {
             for (Socket s : participants) {
                 PrintStream socOut = new PrintStream(s.getOutputStream());
