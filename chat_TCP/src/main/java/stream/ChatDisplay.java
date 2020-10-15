@@ -6,6 +6,7 @@
 package stream;
 import java.io.*;
 import java.net.*;
+import ui.components.ChatRoomUI;
 
 /**
  *
@@ -13,9 +14,11 @@ import java.net.*;
  */
 public class ChatDisplay extends Thread {
     private Socket clientSocket;
+    private ChatRoomUI gui;
     
-    ChatDisplay(Socket s) {
+    ChatDisplay(Socket s, ChatRoomUI ui ) {
         this.clientSocket = s;
+        this.gui=ui;
     }
     
     public void run() {
@@ -26,7 +29,7 @@ public class ChatDisplay extends Thread {
                 String line = socIn.readLine();
                 if (line != null)
                 {
-                    System.out.println(line);
+                    gui.getMessageArea().append("\n" + line);
                 }
             }
         } catch (Exception e) {
