@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package stream;
+package stream.client;
 
 import java.io.*;
 import java.net.*;
@@ -22,7 +22,6 @@ public class ChatClient {
         PrintStream socOut = null;
         BufferedReader stdIn = null;
         BufferedReader socIn = null;
-        javax.swing.JTextField input = gui.getChatInput();
 
         if (args.length != 2) {
             System.out.println("Usage: java ChatClient <EchoServer host> <EchoServer port>");
@@ -52,6 +51,7 @@ public class ChatClient {
         ChatDisplay affichage = new ChatDisplay(echoSocket, gui);
         affichage.start();
         while (true) {
+            /*
             line = stdIn.readLine();
             //line = input.getText();
             if (line.equals(".")) {
@@ -59,6 +59,10 @@ public class ChatClient {
             }
             socOut.println(line);
             //System.out.println(socIn.readLine());
+            */
+            if(affichage.getState() == Thread.State.TERMINATED) {
+                break;
+            }
         }
         socOut.close();
         socIn.close();

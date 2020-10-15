@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package stream;
+package stream.server;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,7 +21,6 @@ public class ChatServer {
      *
      * @param Server port
      *
-     *
      */
     public static void main(String args[]) {
         ServerSocket listenSocket;
@@ -30,6 +29,7 @@ public class ChatServer {
             System.out.println("Usage: java ChatServer <Server port>");
             System.exit(1);
         }
+        
         try {
             List<Socket> participants;
             participants = new ArrayList<Socket>();
@@ -43,7 +43,7 @@ public class ChatServer {
                 ct.start();
             }
         } catch (Exception e) {
-            System.err.println("Error in EchoServer:" + e);
+            System.err.println("Error in ChatServer:" + e);
         }
     }
 }
