@@ -75,19 +75,9 @@ public class ClientThread extends Thread {
 
     public synchronized void broadcast(String message) {
         try {
-            /*if(justJoined){
-                PrintStream socOut = null;
-                socOut = new PrintStream(clientSocket.getOutputStream());
-                socOut.println(loadHistory());
-                justJoined=false;
-            }*/
             for (Participant p : participants) {               
                 Socket s = p.getClientSocket();
-                PrintStream socOut = new PrintStream(s.getOutputStream());
-                /*if (justJoined){
-                    socOut.println(loadHistory());
-                    justJoined=false;
-                }*/              
+                PrintStream socOut = new PrintStream(s.getOutputStream());            
                 socOut.println(message);
             }
             saveHistory(message);
