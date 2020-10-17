@@ -73,6 +73,7 @@ public class ChatRoom {
         return history;
     }
     
+    
     public synchronized void saveHistory(String message){
         try {
             writer.write(message);
