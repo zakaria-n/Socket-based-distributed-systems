@@ -36,6 +36,7 @@ public class ClientThread extends Thread {
             PrintStream socOut = null;
             socIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             socOut = new PrintStream(clientSocket.getOutputStream());
+            //broadcast(loadHistory());
             //broadcast("UPDATE_PARTICIPANTS|" + getParticipantsList());
             while (!exit) {
                 String line = socIn.readLine();
@@ -77,10 +78,10 @@ public class ClientThread extends Thread {
                 /*if (justJoined){
                     socOut.println(loadHistory());
                     justJoined=false;
-                }*/
+                }*/              
                 socOut.println(message);
-                saveHistory(message);
             }
+            saveHistory(message);
         } catch (Exception e) {
             System.err.println("Broadcast error: " + e);
         }
