@@ -33,7 +33,7 @@ public class ChatRoom {
         this.id = iD++;
         this.name = roomName;
         try {
-            this.historyFile = "users/zakaria/Documents/GitHub/Socket-based-distributed-systems/data" + name + "_" + id + ".txt";
+            this.historyFile = "../data" + name + "_" + id + ".txt";
             File file = new File(historyFile);
             if (file.createNewFile()) { // si le fichier n'existe pas déjà on le crée
                 System.out.println("The history file for room "+ id + "has been created.");
@@ -45,6 +45,7 @@ public class ChatRoom {
             System.out.println(e);
         }
     }
+    
     
     public synchronized void acceptParticipant (Participant p){
         this.participants.add(p);

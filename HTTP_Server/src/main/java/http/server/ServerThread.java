@@ -36,7 +36,5 @@ public class ServerThread extends Thread {
         }
     }
     
-    private void readHeader(BufferedReader input) {
-        
-    }
+    
 }

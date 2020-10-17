@@ -20,6 +20,7 @@ public class HTTPRequest {
     private String request_uri;
     private String httpVersion;
     private ArrayList<String> fields;
+    private ArrayList<String> body;
     
     public HTTPRequest(BufferedInputStream input) {
         this.in = input;

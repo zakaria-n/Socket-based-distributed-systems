@@ -14,7 +14,7 @@ public class ClientThread extends Thread {
     private String clientNickname;
     private Socket clientSocket;
     private List<Participant> participants;
-    private static final String path = "/Users/zakaria/Documents/GitHub/Socket-based-distributed-systems/data/history.txt";
+    private static final String path = "../data/history.txt";
     private boolean justJoined = true;
     private volatile boolean exit = false;
 

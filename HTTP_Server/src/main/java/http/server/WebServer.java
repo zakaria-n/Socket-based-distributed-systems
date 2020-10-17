@@ -41,7 +41,9 @@ public class WebServer {
         try {
             while (true) {
                 Socket remote = s.accept();
-
+                
+                ServerThread st = new ServerThread(remote);
+                st.start();
                 // remote is now the connected socket
                 System.out.println("New connection, sending data.");
 
