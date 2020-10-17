@@ -7,7 +7,7 @@ package stream.client;
 
 import java.io.*;
 import java.net.*;
-import ui.components.ChatRoomUI;
+import ui.components.*;
 
 public class ChatClient {
 
@@ -17,27 +17,38 @@ public class ChatClient {
     *
      */
     public static void main(String[] args) throws IOException {
-        ChatRoomUI gui = null;
-        Socket echoSocket = null;
+        
+        ChatRoomUI crui = null;
+        ClientConnectionUI ccui = null;
+        
+        ChatDisplay affichage = null;
+        
+        Socket socket = null;
+        
         PrintStream socOut = null;
         BufferedReader stdIn = null;
         BufferedReader socIn = null;
 
-        if (args.length != 2) {
-            System.out.println("Usage: java ChatClient <EchoServer host> <EchoServer port>");
-            System.exit(1);
-        }
 
         try {
+            //Connection frame
+            ccui = new ClientConnectionUI();
+            ccui.setVisible(true);
             // creation socket ==> connexion
-            echoSocket = new Socket(args[0], Integer.parseInt(args[1]));
+            
+            socket = new Socket(args[0], Integer.parseInt(args[1]));
             socIn = new BufferedReader(
-                    new InputStreamReader(echoSocket.getInputStream()));
-            socOut = new PrintStream(echoSocket.getOutputStream());
+                    new InputStreamReader(socket.getInputStream()));
+            socOut = new PrintStream(socket.getOutputStream());
             
             stdIn = new BufferedReader(new InputStreamReader(System.in));
-            gui = new ChatRoomUI(echoSocket);
-            gui.setVisible(true);
+            
+            affichage = new ChatDisplay(socket, crui);
+            affichage.start();
+            
+           
+            crui = new ChatRoomUI(socket,affichage);
+            crui.setVisible(true);
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host:" + args[0]);
             System.exit(1);
@@ -48,8 +59,7 @@ public class ChatClient {
         }
 
         String line;
-        ChatDisplay affichage = new ChatDisplay(echoSocket, gui);
-        affichage.start();
+        
         while (true) {
             /*
             line = stdIn.readLine();
@@ -67,7 +77,7 @@ public class ChatClient {
         socOut.close();
         socIn.close();
         stdIn.close();
-        echoSocket.close();
+        socket.close();
     }
     
     

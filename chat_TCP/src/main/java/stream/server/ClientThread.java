@@ -10,13 +10,15 @@ import java.net.*;
 import java.util.List;
 
 public class ClientThread extends Thread {
-
+    
+    private String clientNickname;
     private Socket clientSocket;
-    private List<Socket> participants;
+    private List<Participant> participants;
 
     private volatile boolean exit = false;
 
-    ClientThread(Socket s, List<Socket> p) {
+    ClientThread(String cn, Socket s, List<Participant> p) {
+        this.clientNickname = cn;
         this.clientSocket = s;
         this.participants = p;
     }
@@ -33,7 +35,7 @@ public class ClientThread extends Thread {
             PrintStream socOut = null;
             socIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             socOut = new PrintStream(clientSocket.getOutputStream());
-            broadcast("UPDATE_PARTICIPANTS|" + getParticipantsList());
+            //broadcast("UPDATE_PARTICIPANTS|" + getParticipantsList());
             while (!exit) {
                 String line = socIn.readLine();
                 if (line != null) {
@@ -46,14 +48,16 @@ public class ClientThread extends Thread {
                     switch (toDo) {
                         case "SEND":
                             String message = line.substring((toDoEnd + 1));
-                            broadcast("PRINT|From " + clientSocket.getPort() + ": " + message);
+                            broadcast("PRINT|From " + clientNickname + ": " + message);
                             break;
+                        /*
                         case "LEAVE":
                             socOut.println("EXIT| ");
                             participants.remove(clientSocket);
                             broadcast("UPDATE_PARTICIPANTS|" + getParticipantsList());
                             exit = true;
                             break;
+                            */
                         default:
                             break;
                     }
@@ -66,7 +70,8 @@ public class ClientThread extends Thread {
 
     public synchronized void broadcast(String message) {
         try {
-            for (Socket s : participants) {
+            for (Participant p : participants) {
+                Socket s = p.getClientSocket();
                 PrintStream socOut = new PrintStream(s.getOutputStream());
                 socOut.println(message);
             }
@@ -74,7 +79,8 @@ public class ClientThread extends Thread {
             System.err.println("Broadcast error: " + e);
         }
     }
-
+    
+    /*
     private String getParticipantsList() {
         String list = "";
         for (Socket s : participants) {
@@ -82,5 +88,6 @@ public class ClientThread extends Thread {
         }
         return list;
     }
+    */
 
 }

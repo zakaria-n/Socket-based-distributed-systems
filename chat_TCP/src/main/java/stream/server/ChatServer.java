@@ -5,6 +5,8 @@
  */
 package stream.server;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -31,15 +33,17 @@ public class ChatServer {
         }
         
         try {
-            List<Socket> participants;
-            participants = new ArrayList<Socket>();
+            List<Participant> participants;
+            participants = new ArrayList<Participant>();
             listenSocket = new ServerSocket(Integer.parseInt(args[0])); //port
             System.out.println("Server ready...");
             while (true) {
                 Socket clientSocket = listenSocket.accept();
                 System.out.println("Connexion from:" + clientSocket.getInetAddress());
-                participants.add(clientSocket);
-                ClientThread ct = new ClientThread(clientSocket, participants);
+                BufferedReader socIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                String nickname = socIn.readLine();
+                participants.add(new Participant(clientSocket, nickname));
+                ClientThread ct = new ClientThread(nickname, clientSocket, participants);
                 ct.start();
             }
         } catch (Exception e) {

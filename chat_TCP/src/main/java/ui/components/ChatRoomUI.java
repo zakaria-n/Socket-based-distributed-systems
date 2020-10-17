@@ -16,6 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import stream.client.ChatClient;
+import stream.client.ChatDisplay;
 
 /**
  *
@@ -26,8 +27,9 @@ public class ChatRoomUI extends javax.swing.JFrame {
     /**
      * Creates new form ChatRoomUI
      */
-    public ChatRoomUI(Socket cs) {
+    public ChatRoomUI(Socket cs, ChatDisplay cd) {
         this.clientSocket = cs;
+        this.chatDisplay = cd;
         initComponents();
     }
 
@@ -179,7 +181,7 @@ public class ChatRoomUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             PrintStream socOut = new PrintStream(clientSocket.getOutputStream());
-            socOut.println("LEAVE| ");
+            chatDisplay.exit();
             this.dispose();
         } catch (Exception e) {
             System.err.println("LeaveButtonActionPerformed error: " + e);
@@ -203,6 +205,7 @@ public class ChatRoomUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     // End of variables declaration//GEN-END:variables
     private Socket clientSocket;
+    private ChatDisplay chatDisplay;
     
     
     public JPanel getChatDisplay() {
