@@ -37,8 +37,8 @@ public class ClientThread extends Thread {
             socIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             socOut = new PrintStream(clientSocket.getOutputStream());
             
-            System.out.println(loadHistory());
-            //socOut.println(loadHistory());
+            //System.out.println(loadHistory());
+            socOut.print(loadHistory());
             //broadcast(loadHistory());
             //broadcast("UPDATE_PARTICIPANTS|" + getParticipantsList());
             while (!exit) {
@@ -103,7 +103,7 @@ public class ClientThread extends Thread {
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(path))));
             String line = reader.readLine();
             while (line != null) {
-                history += "\n" + line;
+                history += line+"\n";
                 line = reader.readLine();
             }
             reader.close();
