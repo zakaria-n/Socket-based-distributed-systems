@@ -103,7 +103,7 @@ public class ClientThread extends Thread {
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(path))));
             String line = reader.readLine();
             while (line != null) {
-                history += "\r\n" + line;
+                history += "\n" + line;
                 line = reader.readLine();
             }
             reader.close();

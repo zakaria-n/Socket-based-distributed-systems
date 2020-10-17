@@ -1,3 +1,5 @@
 PRINT|From fred: hola zak
 PRINT|From zak: daijobu?
 PRINT|From fred: hai hai!
+PRINT|From zak: hola
+PRINT|From zak: wtf
