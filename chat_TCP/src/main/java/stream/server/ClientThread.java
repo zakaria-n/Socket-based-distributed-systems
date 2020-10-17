@@ -67,7 +67,8 @@ public class ClientThread extends Thread {
             System.err.println("Error in ClientThread:" + e);
         }
     }
-
+    
+    
     public synchronized void broadcast(String message) {
         try {
             for (Participant p : participants) {
