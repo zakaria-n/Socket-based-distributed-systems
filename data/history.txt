@@ -1,0 +1,12 @@
+PRINT|From fred: hola zak
+PRINT|From zak: daijobu?
+PRINT|From fred: hai hai!
+PRINT|From zak: hola
+PRINT|From zak: wtf
+PRINT|From Zak: hey
+PRINT|From zak: hey
+PRINT|From fred: im back!
+PRINT|From zak: i think shark is joining us lol
+PRINT|From fred: oof been a minute since we last heard of him
+PRINT|From shark: she's here 8)
+PRINT|From taemin: sup my good boys

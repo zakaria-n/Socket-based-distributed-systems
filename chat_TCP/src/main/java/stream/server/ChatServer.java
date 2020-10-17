@@ -17,7 +17,6 @@ import java.util.List;
  * @author faouz
  */
 public class ChatServer {
-
     /**
      * main method
      *
@@ -44,6 +43,7 @@ public class ChatServer {
                 String nickname = socIn.readLine();
                 participants.add(new Participant(clientSocket, nickname));
                 ClientThread ct = new ClientThread(nickname, clientSocket, participants);
+                //ct.broadcast(ct.loadHistory());
                 ct.start();
             }
         } catch (Exception e) {

@@ -14,7 +14,8 @@ public class ClientThread extends Thread {
     private String clientNickname;
     private Socket clientSocket;
     private List<Participant> participants;
-
+    private static final String path = "/Users/zakaria/Documents/GitHub/Socket-based-distributed-systems/data/history.txt";
+    private boolean justJoined = true;
     private volatile boolean exit = false;
 
     ClientThread(String cn, Socket s, List<Participant> p) {
@@ -35,6 +36,10 @@ public class ClientThread extends Thread {
             PrintStream socOut = null;
             socIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             socOut = new PrintStream(clientSocket.getOutputStream());
+            
+            //System.out.println(loadHistory());
+            socOut.print(loadHistory());
+            //broadcast(loadHistory());
             //broadcast("UPDATE_PARTICIPANTS|" + getParticipantsList());
             while (!exit) {
                 String line = socIn.readLine();
@@ -71,13 +76,50 @@ public class ClientThread extends Thread {
     
     public synchronized void broadcast(String message) {
         try {
-            for (Participant p : participants) {
+            for (Participant p : participants) {               
                 Socket s = p.getClientSocket();
-                PrintStream socOut = new PrintStream(s.getOutputStream());
+                PrintStream socOut = new PrintStream(s.getOutputStream());            
                 socOut.println(message);
             }
+            saveHistory(message);
         } catch (Exception e) {
             System.err.println("Broadcast error: " + e);
+        }
+    }
+    
+    public synchronized String loadHistory(){
+        String history = "";
+        try {
+            BufferedReader reader;
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(path))));
+            String line = reader.readLine();
+            while (line != null) {
+                history += line+"\n";
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (FileNotFoundException ex) {
+            System.out.println(ex);
+        } catch (IOException ex) {
+            System.out.println(ex);
+        }
+
+        return history;
+    }
+    
+    public synchronized void saveHistory(String message){
+        try {
+            File file = new File(path);
+            if (file.createNewFile()) { // si le fichier n'existe pas déjà on le crée
+                System.out.println("The history file has been created.");
+            } else {
+                System.out.println("The history file already exists.");
+            }
+            PrintWriter logWriter = new PrintWriter(new FileOutputStream(file, true), true);
+            logWriter.append(message + "\n");
+            logWriter.close();
+        } catch (Exception e) {
+            System.out.println(e);
         }
     }
     

@@ -32,24 +32,23 @@ public class ChatDisplay extends Thread {
                 String line = socIn.readLine();
                 if (line != null)
                 {
-                    int toDoEnd = line.indexOf("|");
-                    String toDo = null;
-                    if(toDoEnd != -1) {
-                        toDo = line.substring(0,toDoEnd);
-                    }
+                    //int toDoEnd = line.indexOf("|");
+                    //String toDo = null;
+                    //if(toDoEnd != -1) {
+                        //toDo = line.substring(0,toDoEnd);
+                    //}
                     
-                    switch(toDo) {
-                        case "PRINT" :
-                            String message = line.substring((toDoEnd+1));
-                            gui.getMessageArea().append("\n" + message);
-                            break;
-                        default:
-                            break;
+                    //switch(toDo) {
+                        //case "PRINT" :
+                            //String message = line.substring((toDoEnd+1));
+                            gui.getMessageArea().append(line+"\n");
+                            //break;
+                        //default:
+                            //break;
                     }
                     
                 }
-            }
-        } catch (Exception e) {
+            } catch (Exception e) {
             System.err.println("Error in ChatDisplay:" + e);
         }
     }
