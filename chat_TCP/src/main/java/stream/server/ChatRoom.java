@@ -36,9 +36,9 @@ public class ChatRoom {
             this.historyFile = "../data" + name + "_" + id + ".txt";
             File file = new File(historyFile);
             if (file.createNewFile()) { // si le fichier n'existe pas déjà on le crée
-                System.out.println("The history file for room "+ id + "has been created.");
+                System.out.println("The history file for room "+ id + " has been created.");
             } else {
-                System.out.println("The history file for room "+ id + "already exists.");
+                System.out.println("The history file for room "+ id + " already exists.");
             }
             writer = new BufferedWriter(new FileWriter(new File(historyFile), true)); 
         } catch (Exception e) {
@@ -82,10 +82,6 @@ public class ChatRoom {
         } catch (Exception e) {
             System.out.println(e);
         }
-    }
-
-    public static int getiD() {
-        return iD;
     }
 
     public int getId() {

@@ -1,13 +1,12 @@
-PRINT|From fred: hola zak
-PRINT|From zak: daijobu?
-PRINT|From fred: hai hai!
-PRINT|From zak: hola
-PRINT|From zak: wtf
-PRINT|From Zak: hey
-PRINT|From zak: hey
-PRINT|From fred: im back!
-PRINT|From zak: i think shark is joining us lol
-PRINT|From fred: oof been a minute since we last heard of him
-PRINT|From shark: she's here 8)
-PRINT|From taemin: sup my good boys
-PRINT|From Nickname: Heeeeeeyyy
+From zak: hola
+From zak: wtf
+From Zak: hey
+From zak: hey
+From fred: im back!
+From zak: i think shark is joining us lol
+From fred: oof been a minute since we last heard of him
+From shark: she's here 8)
+From taemin: sup my good boys
+From Nickname: Heeeeeeyyy
+From zak: good morning catboys 8) 
+From zak: the rest of yall gm ig

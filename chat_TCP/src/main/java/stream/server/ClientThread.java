@@ -39,6 +39,7 @@ public class ClientThread extends Thread {
             
             //System.out.println(loadHistory());
             socOut.print(loadHistory());
+            broadcast(clientNickname + " just hopped into the server! ");
             //broadcast(loadHistory());
             //broadcast("UPDATE_PARTICIPANTS|" + getParticipantsList());
             while (!exit) {
@@ -53,7 +54,7 @@ public class ClientThread extends Thread {
                     switch (toDo) {
                         case "SEND":
                             String message = line.substring((toDoEnd + 1));
-                            broadcast("PRINT|From " + clientNickname + ": " + message);
+                            broadcast("From " + clientNickname + ": " + message);
                             break;
                         /*
                         case "LEAVE":
