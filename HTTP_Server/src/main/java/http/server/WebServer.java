@@ -50,7 +50,9 @@ public class WebServer {
             }
 
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            System.out.println("Error in WebServer: " + e);
+            
+            e.printStackTrace();
         }
 
     }

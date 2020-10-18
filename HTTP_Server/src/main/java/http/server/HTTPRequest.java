@@ -47,6 +47,7 @@ public class HTTPRequest {
             }
         } catch (Exception e) {
             System.err.println("Error in readRequest: " + e);
+            e.printStackTrace();
         }
 
         int wordEnd = header.indexOf(" ");
@@ -66,6 +67,7 @@ public class HTTPRequest {
         }
         
         //Lecture fields
+        fields = new ArrayList<String>();
         while (header.length() > 4) {
             wordEnd = header.indexOf("\r\n");
             if (wordEnd != -1) {

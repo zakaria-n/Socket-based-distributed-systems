@@ -5,6 +5,7 @@
  */
 package http.server;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,7 +33,7 @@ public class ServerThread extends Thread {
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     socket.getInputStream()));
-            PrintWriter out = new PrintWriter(socket.getOutputStream());
+            BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
 
             /*
             while(true) {
@@ -42,6 +43,8 @@ public class ServerThread extends Thread {
             //Gérer la requête
             HTTPRequest request = new HTTPRequest(in);
             request.readRequest();
+            System.out.println(request.getMethod());
+            System.out.println(request.getRequest_uri());
 
             switch (request.getMethod()) {
                 case "GET":
@@ -66,34 +69,74 @@ public class ServerThread extends Thread {
 
             //Fermer la socket
         } catch (Exception e) {
-            System.err.println("Error: " + e);
+            System.err.println("Error in ServerThread: " + e);
+            e.printStackTrace();
         }
     }
 
-    public void httpGET(PrintWriter out, String request_uri) {
+    private void httpGET(BufferedOutputStream out, String request_uri) {
         //Répond à une requete GET
         File file = new File(request_uri);
         BufferedReader reader = null;
+        String code = null;
+        String toSend = new String();
+        boolean success = false;
         try {
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            int cur = '\0';
+
+            while ((cur = reader.read()) != -1) {
+                toSend += (char) cur;
+            }
+            code = "200 OK";
+            success = true;
         } catch (FileNotFoundException ex) {
             System.err.println("Error in httpGET: " + ex);
-            //Envoyer une erreur 404 : file not found
-            
-        }
-        int cur = '\0';
-        String toSend = new String();
-        try {
-            while((cur = reader.read()) != -1 ) {
-                toSend += cur;
-            }
+            ex.printStackTrace();
+            code = "404 Not Found";
+
         } catch (IOException ex) {
             System.err.println("Error in httpGET: " + ex);
+            code = "403 Forbidden";
+            ex.printStackTrace();
         }
-        
+        System.out.print(makeHeader(code));
+        System.out.print(toSend);
+
+        try {
+            out.write(makeHeader(code).getBytes());
+            
+            if (success) {
+                out.write(toSend.getBytes());
+                
+            } else {
+                out.write(notFound.getBytes());
+                
+            }
+            out.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
         // Faire l'entête de réponde
-        
-        out.print(toSend);
+
     }
+
+    private String makeHeader(String code) {
+        String header = "HTTP/1.1 " + code + "\r\n";
+        header += "Server: Mini WebServer\r\n";
+        header += "\r\n";
+        return header;
+    }
+
+    private String notFound = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
+            + "<html>\n"
+            + "<head>\n"
+            + "   <title>404 Not Found</title>\n"
+            + "</head>\n"
+            + "<body>\n"
+            + "   <h1>Not Found</h1>\n"
+            + "   <p>The requested URL was not found on this server.</p>\n"
+            + "</body>\n"
+            + "</html> ";
 
 }
