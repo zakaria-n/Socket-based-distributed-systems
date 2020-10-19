@@ -5,11 +5,13 @@
  */
 package http.server;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -51,7 +53,7 @@ public class ServerThread extends Thread {
                     httpGET(out, request.getRequest_uri());
                     break;
                 case "POST":
-                    //
+                    httpPOST(out, in,request.getRequest_uri());
                     break;
                 case "PUT":
                     //
@@ -120,6 +122,47 @@ public class ServerThread extends Thread {
         // Faire l'entête de réponde
 
     }
+
+    
+    private void httpPOST(BufferedOutputStream out, BufferedReader in, String request_uri) {
+        try {
+            File resource = new File(request_uri);
+            boolean newFile = resource.createNewFile(); 
+
+            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource,resource.exists())); // Ouverture d'un flux d'ecriture binaire vers le fichier
+
+            byte[] buffer = new byte[1024];
+            String lineBody = in.readLine();
+            while (lineBody!=null && !lineBody.equals("")) {
+                System.out.println("line :"+lineBody);
+                lineBody = in.readLine();
+                fileOut.write(lineBody.getBytes(), 0, lineBody.getBytes().length);
+                fileOut.write("\r\n".getBytes(), 0, "\r\n".getBytes().length);
+            }
+            fileOut.flush(); 
+            fileOut.close(); 
+
+            if (newFile) {
+                out.write(makeHeader("201 Created").getBytes());
+                out.write("\r\n".getBytes());
+            } else {
+                out.write(makeHeader("200 OK").getBytes());
+                out.write("\r\n".getBytes());
+            }
+            out.flush();
+        } catch (Exception e){
+            e.printStackTrace();
+            try {
+                out.write(makeHeader("500 Internal Server Error").getBytes());
+                out.write("\r\n".getBytes());
+                out.flush();
+            } catch (Exception e2) {
+                System.out.println(e);
+            }
+
+        }
+    }
+
 
     private String makeHeader(String code) {
         String header = "HTTP/1.1 " + code + "\r\n";
