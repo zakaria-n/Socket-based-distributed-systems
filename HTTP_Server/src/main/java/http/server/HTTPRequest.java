@@ -58,6 +58,7 @@ public class HTTPRequest {
         wordEnd = header.indexOf(" ");
         if (wordEnd != -1) {
             request_uri = header.substring(0, wordEnd);
+            request_uri = "../" + request_uri;
             header = header.substring((wordEnd + 1));
         }
         wordEnd = header.indexOf("\r\n");

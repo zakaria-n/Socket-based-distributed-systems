@@ -53,7 +53,7 @@ public class ServerThread extends Thread {
                     httpGET(out, request.getRequest_uri());
                     break;
                 case "POST":
-                    httpPOST(out, in,request.getRequest_uri());
+                    httpPOST(out, in, request.getRequest_uri());
                     break;
                 case "PUT":
                     //
@@ -94,52 +94,94 @@ public class ServerThread extends Thread {
         } catch (FileNotFoundException ex) {
             System.err.println("Error in httpGET: " + ex);
             ex.printStackTrace();
-            code = "404 Not Found";
+            
+            if(file.isFile()) {
+                code = "403 Forbidden";
+            } else {
+                code = "404 Not Found";
+            }
 
         } catch (IOException ex) {
             System.err.println("Error in httpGET: " + ex);
-            code = "403 Forbidden";
+            code = "404 Not Found";
             ex.printStackTrace();
         }
-        System.out.print(makeHeader(code));
-        System.out.print(toSend);
+
+        String type = "...";
+        long length = 0;
+
+        switch (code) {
+
+            case "200 OK":
+                type = getContentType(file);
+                length = file.length();
+
+                break;
+
+            case "404 Not Found":
+                type = "Content-Type: text/html\r\n";
+                length = (long) notFound.length();
+                toSend = notFound;
+                break;
+            
+            case "403 Forbidden":
+                type = "Content-Type: text/html\r\n";
+                length = (long) forbidden.length();
+                toSend = forbidden;
+                break;
+                
+            
+            default:
+                break;
+        }
 
         try {
-            out.write(makeHeader(code).getBytes());
-            
-            if (success) {
-                out.write(toSend.getBytes());
-                
-            } else {
-                out.write(notFound.getBytes());
-                
-            }
+            out.write(makeHeader(code, type, length).getBytes());
+            out.write(toSend.getBytes());
             out.flush();
         } catch (IOException ex) {
-            Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Error in httpGET: " + ex);
+            ex.printStackTrace();
         }
-        // Faire l'entête de réponde
 
     }
 
-    
+    private String makeHeader(String code, String type, long length) {
+
+        String header;
+
+        header = "HTTP/1.1 " + code + "\r\n";
+        header += type;
+        header += "Content-Length: " + length + "\r\n";
+        header += "Server: Mini WebServer\r\n";
+        header += "\r\n";
+        return header;
+    }
+
+    private String makeHeader(String code) {
+        String header = "HTTP/1.1 " + code + "\r\n";
+        header += "Server: Mini WebServer\r\n";
+        header += "\r\n";
+        return header;
+    }
+
     private void httpPOST(BufferedOutputStream out, BufferedReader in, String request_uri) {
         try {
             File resource = new File(request_uri);
-            boolean newFile = resource.createNewFile(); 
+            boolean newFile = resource.createNewFile();
 
-            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource,resource.exists()));
+            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource, resource.exists()));
 
             byte[] buffer = new byte[1024];
             String lineBody = in.readLine();
-            while (lineBody!=null && !lineBody.equals("")) {
-                System.out.println("line :"+lineBody);
+            while (lineBody != null && !lineBody.equals("")) {
+                System.out.println("line :" + lineBody);
                 lineBody = in.readLine();
                 fileOut.write(lineBody.getBytes(), 0, lineBody.getBytes().length);
                 fileOut.write("\r\n".getBytes(), 0, "\r\n".getBytes().length);
             }
-            fileOut.flush(); 
-            fileOut.close(); 
+            fileOut.flush();
+            fileOut.close();
 
             if (newFile) {
                 out.write(makeHeader("201 Created").getBytes());
@@ -149,7 +191,7 @@ public class ServerThread extends Thread {
                 out.write("\r\n".getBytes());
             }
             out.flush();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             try {
                 out.write(makeHeader("500 Internal Server Error").getBytes());
@@ -161,74 +203,57 @@ public class ServerThread extends Thread {
         }
     }
 
+    public String getContentType(File file) {
 
-    private String makeHeader(String code) {
-        String header = "HTTP/1.1 " + code + "\r\n";
-        header += "Server: Mini WebServer\r\n";
-        header += "\r\n";
-        return header;
-    }
-    
-    public String getContentType(String file){
-
+        String fileName = file.getName();
         String type = ".txt";
 
-        if(file.endsWith(".html") || file.endsWith(".htm"))
+        if (fileName.endsWith(".html") || fileName.endsWith(".htm") || fileName.endsWith(".txt")) {
             type = "Content-Type: text/html\r\n";
-
-        else if(file.endsWith(".mp4"))
+        } else if (fileName.endsWith(".mp4")) {
             type = "Content-Type: video/mp4\r\n";
-
-        else if(file.endsWith(".png"))
+        } else if (fileName.endsWith(".png")) {
             type = "Content-Type: image/png\r\n";
-
-        else if(file.endsWith(".jpeg") || file.endsWith(".jpeg"))
+        } else if (fileName.endsWith(".jpeg") || fileName.endsWith(".jpeg")) {
             type = "Content-Type: image/jpg\r\n";
-
-        else if(file.endsWith(".mp3"))
+        } else if (fileName.endsWith(".mp3")) {
             type = "Content-Type: audio/mp3\r\n";
-
-        else if(file.endsWith(".avi"))
+        } else if (fileName.endsWith(".avi")) {
             type = "Content-Type: video/x-msvideo\r\n";
-
-        else if(file.endsWith(".css"))
+        } else if (fileName.endsWith(".css")) {
             type = "Content-Type: text/css\r\n";
-
-        else if(file.endsWith(".pdf"))
+        } else if (fileName.endsWith(".pdf")) {
             type = "Content-Type: application/pdf\r\n";
-
-        else if(file.endsWith(".odt"))
+        } else if (fileName.endsWith(".odt")) {
             type = "Content-Type: application/vnd.oasis.opendocument.text\r\n";
-
-         else if(file.endsWith(".json"))
+        } else if (fileName.endsWith(".json")) {
             type = "Content-Type: application/json\r\n";
+        }
 
         return type;
     }
-
-
-    private String makeHeader(String code, long length, String file) {
-
-        String header, type;
-        type = getContentType(file);
-
-        header = "HTTP/1.1 " + code + "\r\n";
-        header += type;
-        header += "Content-Length: " + length + "\r\n";
-        header += "Server: Ultra-Mini WebServer\r\n";
-        header += "\r\n";
-        return header;
-    }
     
-    private String notFound = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
+    
+    private static final String notFound = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
             + "<html>\n"
             + "<head>\n"
             + "   <title>404 Not Found</title>\n"
             + "</head>\n"
             + "<body>\n"
-            + "   <h1>Not Found</h1>\n"
+            + "   <h1>404 Not Found</h1>\n"
             + "   <p>The requested URL was not found on this server.</p>\n"
             + "</body>\n"
             + "</html> ";
-
+    
+    private static final String forbidden = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
+            + "<html>\n"
+            + "<head>\n"
+            + "   <title>403 Forbidden</title>\n"
+            + "</head>\n"
+            + "<body>\n"
+            + "   <h1>403 Forbidden</h1>\n"
+            + "   <p>Access is forbidden to the requested page.</p>\n"
+            + "</body>\n"
+            + "</html> ";
+    
 }
