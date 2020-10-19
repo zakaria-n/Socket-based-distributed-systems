@@ -128,15 +128,16 @@ public class ServerThread extends Thread {
             File resource = new File(request_uri);
             boolean newFile = resource.createNewFile(); 
 
-            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource,resource.exists()));
+            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource,resource.exists())); // Ouverture d'un flux d'ecriture binaire vers le fichier
 
             byte[] buffer = new byte[1024];
             String lineBody = in.readLine();
             while (lineBody!=null && !lineBody.equals("")) {
                 System.out.println("line :"+lineBody);
-                lineBody = in.readLine();
+                //fileOut.write(buffer, 0, buffer.length);
                 fileOut.write(lineBody.getBytes(), 0, lineBody.getBytes().length);
                 fileOut.write("\r\n".getBytes(), 0, "\r\n".getBytes().length);
+                lineBody = in.readLine();
             }
             fileOut.flush(); 
             fileOut.close(); 
@@ -158,6 +159,7 @@ public class ServerThread extends Thread {
             } catch (Exception e2) {
                 System.out.println(e);
             }
+
         }
     }
 
