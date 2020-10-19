@@ -55,7 +55,7 @@ public class ServerThread extends Thread {
                     httpPOST(out, in, request.getRequest_uri());
                     break;
                 case "PUT":
-                    //
+                    httpPUT(out, in, request.getRequest_uri());
                     break;
                 case "HEAD":
                     //
@@ -204,7 +204,10 @@ public class ServerThread extends Thread {
         //Répond à une requête PUT
         try {
             File resource = new File(request_uri);
-            boolean newFile = resource.createNewFile();
+            if (!resource.createNewFile()){
+                PrintWriter pw = new PrintWriter(resource);
+                pw.close();
+            }
             
             BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource, resource.exists()));
 
@@ -216,11 +219,11 @@ public class ServerThread extends Thread {
             fileOut.flush();
             fileOut.close();
 
-            if (newFile) {
-                out.write(makeHeader("201 Created").getBytes());
+            if (resource.createNewFile()) {
+                out.write(makeHeader("204 No Content").getBytes());
                 out.write("\r\n".getBytes());
             } else {
-                out.write(makeHeader("200 OK").getBytes());
+                out.write(makeHeader("201 Created").getBytes());
                 out.write("\r\n".getBytes());
             }
             out.flush();
