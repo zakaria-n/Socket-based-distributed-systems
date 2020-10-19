@@ -61,7 +61,7 @@ public class ServerThread extends Thread {
                     //
                     break;
                 case "DELETE":
-                    //
+                    httpDELETE(out, request.getRequest_uri());
                     break;
                 default:
                     break;
@@ -238,6 +238,45 @@ public class ServerThread extends Thread {
             }
 
         }
+    }
+    
+    private void httpDELETE(BufferedOutputStream out, String request_uri) {
+        //Répond à une requête DELETE
+        try {
+            File resource = new File(request_uri);
+            boolean exists = resource.exists();
+            boolean removed = false;
+            
+            if (exists && resource.isFile()){
+                removed = resource.delete();
+            }
+
+            if(removed) {
+                out.write(makeHeader("204 No Content").getBytes());
+                out.write("\r\n".getBytes());
+            } else if (!exists) {
+                out.write(makeHeader("404 Not Found").getBytes());
+                out.write("\r\n".getBytes());
+            } else {
+                out.write(makeHeader("403 Forbidden").getBytes());
+                out.write("\r\n".getBytes());
+            }
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                out.write(makeHeader("500 Internal Server Error").getBytes());
+                out.write("\r\n".getBytes());
+                out.flush();
+            } catch (Exception e2) {
+                System.out.println(e);
+            }
+
+        }
+    }
+    
+    private void httpHEAD(BufferedOutputStream out, String request_uri) {
+        
     }
     public String getContentType(File file) {
 
