@@ -9,4 +9,9 @@ From shark: she's here 8)
 From taemin: sup my good boys
 From Nickname: Heeeeeeyyy
 From zak: good morning catboys 8) 
-From zak: the rest of yall gm ig
+From zak: the rest of yall gm igGET /resources/helloWorld.html HTTP/1.1 just hopped into the server! 
+null just hopped into the server! 
+GET /resources/helloWorld.html HTTP/1.1 just hopped into the server! 
+null just hopped into the server! 
+GET /resources/helloWorld.html HTTP/1.1 just hopped into the server! 
+GET /resources/helloWorld.html HTTP/1.1 just hopped into the server! 

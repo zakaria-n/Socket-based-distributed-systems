@@ -33,8 +33,7 @@ public class ServerThread extends Thread {
 
     public void run() {
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    socket.getInputStream()));
+            BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
             BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
 
             /*
@@ -165,22 +164,54 @@ public class ServerThread extends Thread {
         return header;
     }
 
-    private void httpPOST(BufferedOutputStream out, BufferedReader in, String request_uri) {
+    private void httpPOST(BufferedOutputStream out, BufferedInputStream in, String request_uri) {
+        //Répond à une requête POST
         try {
             File resource = new File(request_uri);
             boolean newFile = resource.createNewFile();
-
-
+            
             BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource, resource.exists()));
 
-            byte[] buffer = new byte[1024];
-            String lineBody = in.readLine();
-            while (lineBody != null && !lineBody.equals("")) {
-                System.out.println("line :" + lineBody);
-                lineBody = in.readLine();
-                fileOut.write(lineBody.getBytes(), 0, lineBody.getBytes().length);
-                fileOut.write("\r\n".getBytes(), 0, "\r\n".getBytes().length);
-                lineBody = in.readLine();
+            byte[] buffer = new byte[256];
+            while(in.available() > 0) {
+                int nbRead = in.read(buffer);
+                fileOut.write(buffer, 0, nbRead);
+            }
+            fileOut.flush();
+            fileOut.close();
+
+            if (newFile) {
+                out.write(makeHeader("201 Created").getBytes());
+                out.write("\r\n".getBytes());
+            } else {
+                out.write(makeHeader("200 OK").getBytes());
+                out.write("\r\n".getBytes());
+            }
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                out.write(makeHeader("500 Internal Server Error").getBytes());
+                out.write("\r\n".getBytes());
+                out.flush();
+            } catch (Exception e2) {
+                System.out.println(e);
+            }
+        }
+    }
+
+    private void httpPUT(BufferedOutputStream out, BufferedInputStream in, String request_uri) {
+        //Répond à une requête PUT
+        try {
+            File resource = new File(request_uri);
+            boolean newFile = resource.createNewFile();
+            
+            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource, resource.exists()));
+
+            byte[] buffer = new byte[256];
+            while(in.available() > 0) {
+                int nbRead = in.read(buffer);
+                fileOut.write(buffer, 0, nbRead);
             }
             fileOut.flush();
             fileOut.close();
@@ -205,7 +236,6 @@ public class ServerThread extends Thread {
 
         }
     }
-
     public String getContentType(File file) {
 
         String fileName = file.getName();
