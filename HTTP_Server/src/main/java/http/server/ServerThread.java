@@ -170,7 +170,58 @@ public class ServerThread extends Thread {
         header += "\r\n";
         return header;
     }
+    
+    public String getContentType(String file){
 
+        String type = ".txt";
+
+        if(file.endsWith(".html") || file.endsWith(".htm"))
+            type = "Content-Type: text/html\r\n";
+
+        else if(file.endsWith(".mp4"))
+            type = "Content-Type: video/mp4\r\n";
+
+        else if(file.endsWith(".png"))
+            type = "Content-Type: image/png\r\n";
+
+        else if(file.endsWith(".jpeg") || file.endsWith(".jpeg"))
+            type = "Content-Type: image/jpg\r\n";
+
+        else if(file.endsWith(".mp3"))
+            type = "Content-Type: audio/mp3\r\n";
+
+        else if(file.endsWith(".avi"))
+            type = "Content-Type: video/x-msvideo\r\n";
+
+        else if(file.endsWith(".css"))
+            type = "Content-Type: text/css\r\n";
+
+        else if(file.endsWith(".pdf"))
+            type = "Content-Type: application/pdf\r\n";
+
+        else if(file.endsWith(".odt"))
+            type = "Content-Type: application/vnd.oasis.opendocument.text\r\n";
+
+         else if(file.endsWith(".json"))
+            type = "Content-Type: application/json\r\n";
+
+        return type;
+    }
+
+
+    private String makeHeader(String code, long length, String file) {
+
+        String header, type;
+        type = getContentType(file);
+
+        header = "HTTP/1.1 " + code + "\r\n";
+        header += type;
+        header += "Content-Length: " + length + "\r\n";
+        header += "Server: Ultra-Mini WebServer\r\n";
+        header += "\r\n";
+        return header;
+    }
+    
     private String notFound = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
             + "<html>\n"
             + "<head>\n"
