@@ -58,7 +58,7 @@ public class ServerThread extends Thread {
                     httpPUT(out, in, request.getRequest_uri());
                     break;
                 case "HEAD":
-                    //
+                    httpHEAD(out, request.getRequest_uri());
                     break;
                 case "DELETE":
                     httpDELETE(out, request.getRequest_uri());
@@ -276,6 +276,27 @@ public class ServerThread extends Thread {
     }
     
     private void httpHEAD(BufferedOutputStream out, String request_uri) {
+        try{
+            File resource = new File(request_uri);
+            if (resource.exists() && resource.isFile()){
+                long length = resource.length();
+                String type = getContentType(resource);
+                out.write(makeHeader("200 OK", type, length).getBytes());
+                out.write("\r\n".getBytes());
+            }else{
+                out.write(makeHeader("404 Not Found").getBytes());
+                out.write("\r\n".getBytes());
+            }
+            out.flush();
+        }catch (IOException e) {
+            e.printStackTrace();
+            try {
+                 out.write(makeHeader("500 Internal Server Error").getBytes());
+                 out.flush();
+            } catch (Exception e2) {
+                System.out.println(e);
+            }
+        }
         
     }
     public String getContentType(File file) {
