@@ -80,74 +80,41 @@ public class ServerThread extends Thread {
     }
 
     private void httpGET(BufferedOutputStream out, String request_uri) {
-        //Répond à une requete GET
-        File file = new File(request_uri);
-        BufferedReader reader = null;
-        String code = null;
-        String toSend = new String();
-        boolean success = false;
+        File resource = new File(request_uri);
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            int cur = '\0';
-
-            while ((cur = reader.read()) != -1) {
-                toSend += (char) cur;
+            boolean exists = resource.exists();
+            boolean valid = resource.isFile();
+            if (exists && valid){
+                long length = resource.length();
+                String type = getContentType(resource);
+                out.write(makeHeader("200 OK",type, length).getBytes());
+                BufferedInputStream in = new BufferedInputStream(new FileInputStream(resource));
+                byte[] buffer = new byte[1000];
+                int nbRead;
+                while((nbRead = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, nbRead);
+                }
+                in.close();
+                out.flush();             
+            }else{
+                String type = "Content-Type: text/html\r\n";
+                String code = valid ? "403 Forbidden" : "404 Not Found";
+                String body = valid ? forbidden : notFound;
+                long length = (long) body.length();
+                out.write(makeHeader(code, type, length).getBytes());
+                out.write(body.getBytes());
+                out.flush();
             }
-            code = "200 OK";
-            success = true;
-        } catch (FileNotFoundException ex) {
-            System.err.println("Error in httpGET: " + ex);
-            ex.printStackTrace();
-            
-            if(file.isFile()) {
-                code = "403 Forbidden";
-            } else {
-                code = "404 Not Found";
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            try {
+                out.write(makeHeader("500 Internal Server Error").getBytes());
+                out.flush();
+            } catch (Exception e2) {
+                e2.printStackTrace();
             }
-
-        } catch (IOException ex) {
-            System.err.println("Error in httpGET: " + ex);
-            code = "404 Not Found";
-            ex.printStackTrace();
         }
-
-        String type = "...";
-        long length = 0;
-
-        switch (code) {
-
-            case "200 OK":
-                type = getContentType(file);
-                length = file.length();
-
-                break;
-
-            case "404 Not Found":
-                type = "Content-Type: text/html\r\n";
-                length = (long) notFound.length();
-                toSend = notFound;
-                break;
-            
-            case "403 Forbidden":
-                type = "Content-Type: text/html\r\n";
-                length = (long) forbidden.length();
-                toSend = forbidden;
-                break;
-                
-            
-            default:
-                break;
-        }
-
-        try {
-            out.write(makeHeader(code, type, length).getBytes());
-            out.write(toSend.getBytes());
-            out.flush();
-        } catch (IOException ex) {
-            System.err.println("Error in httpGET: " + ex);
-            ex.printStackTrace();
-        }
-
     }
 
     private String makeHeader(String code, String type, long length) {
