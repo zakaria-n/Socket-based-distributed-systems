@@ -43,11 +43,13 @@ public class ChatClient {
             
             stdIn = new BufferedReader(new InputStreamReader(System.in));
             
-            affichage = new ChatDisplay(socket, crui);
-            affichage.start();
+            affichage = new ChatDisplay(socket);
+            
             
            
             crui = new ChatRoomUI(socket,affichage);
+            affichage.setChatRoomUI(crui);
+            affichage.start();
             crui.setVisible(true);
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host:" + args[0]);

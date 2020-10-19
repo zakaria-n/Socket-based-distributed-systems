@@ -56,14 +56,6 @@ public class ClientThread extends Thread {
                             String message = line.substring((toDoEnd + 1));
                             broadcast("From " + clientNickname + ": " + message);
                             break;
-                        /*
-                        case "LEAVE":
-                            socOut.println("EXIT| ");
-                            participants.remove(clientSocket);
-                            broadcast("UPDATE_PARTICIPANTS|" + getParticipantsList());
-                            exit = true;
-                            break;
-                            */
                         default:
                             break;
                     }

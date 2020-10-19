@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package stream.client;
+
 import java.io.*;
 import java.net.*;
 import javax.swing.DefaultListModel;
@@ -14,46 +15,38 @@ import ui.components.ChatRoomUI;
  * @author zakaria
  */
 public class ChatDisplay extends Thread {
+
     private Socket clientSocket;
-    private ChatRoomUI gui;
-    
+    private ChatRoomUI gui = null;
+
     private volatile boolean exit = false;
-    
-    public ChatDisplay(Socket s, ChatRoomUI ui ) {
+
+    public ChatDisplay(Socket s) {
         this.clientSocket = s;
-        this.gui=ui;
     }
-    
+
     public void run() {
         try {
             BufferedReader socIn = null;
             socIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             while (!exit) {
                 String line = socIn.readLine();
-                if (line != null)
-                {
-                    //int toDoEnd = line.indexOf("|");
-                    //String toDo = null;
-                    //if(toDoEnd != -1) {
-                        //toDo = line.substring(0,toDoEnd);
-                    //}
-                    
-                    //switch(toDo) {
-                        //case "PRINT" :
-                            //String message = line.substring((toDoEnd+1));
-                            gui.getMessageArea().append(line+"\n");
-                            //break;
-                        //default:
-                            //break;
-                    }
-                    
+                if (line != null) {
+                    gui.getMessageArea().append(line + "\n");
                 }
-            } catch (Exception e) {
+
+            }
+        } catch (Exception e) {
             System.err.println("Error in ChatDisplay:" + e);
+            e.printStackTrace();
         }
     }
-    
+
     public void exit() {
         exit = true;
+    }
+    
+    public void setChatRoomUI(ChatRoomUI crui) {
+        this.gui = crui;
     }
 }

@@ -54,14 +54,15 @@ public class ClientConnectionUI extends javax.swing.JFrame {
             }
         });
 
-        ServerHostTextField.setText("Server host");
+        ServerHostTextField.setText("localhost");
+        ServerHostTextField.setToolTipText("");
         ServerHostTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ServerHostTextFieldActionPerformed(evt);
             }
         });
 
-        ServerPortTextField.setText("Server port");
+        ServerPortTextField.setText("1234");
 
         NicknameTextField.setText("Nickname");
 
@@ -154,11 +155,13 @@ public class ClientConnectionUI extends javax.swing.JFrame {
                 socOut.println(socket.getPort());
             }
             
+            affichage = new ChatDisplay(socket);          
             crui = new ChatRoomUI(socket,affichage);
+            affichage.setChatRoomUI(crui);
+            affichage.start();
             crui.setVisible(true);
             
-            affichage = new ChatDisplay(socket, crui);
-            affichage.start();
+            
             
             this.setVisible(false);
             

@@ -180,11 +180,12 @@ public class ChatRoomUI extends javax.swing.JFrame {
     private void LeaveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LeaveButtonActionPerformed
         // TODO add your handling code here:
         try {
-            PrintStream socOut = new PrintStream(clientSocket.getOutputStream());
             chatDisplay.exit();
+            clientSocket.close();
             this.dispose();
         } catch (Exception e) {
             System.err.println("LeaveButtonActionPerformed error: " + e);
+            e.printStackTrace();
         }
     }//GEN-LAST:event_LeaveButtonActionPerformed
 
