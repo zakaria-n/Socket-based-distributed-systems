@@ -65,7 +65,6 @@ public class ServerThread extends Thread {
                     //
                     break;
                 default:
-
                     break;
             }
 
@@ -129,7 +128,7 @@ public class ServerThread extends Thread {
             File resource = new File(request_uri);
             boolean newFile = resource.createNewFile(); 
 
-            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource,resource.exists())); // Ouverture d'un flux d'ecriture binaire vers le fichier
+            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource,resource.exists()));
 
             byte[] buffer = new byte[1024];
             String lineBody = in.readLine();
@@ -159,7 +158,6 @@ public class ServerThread extends Thread {
             } catch (Exception e2) {
                 System.out.println(e);
             }
-
         }
     }
 
