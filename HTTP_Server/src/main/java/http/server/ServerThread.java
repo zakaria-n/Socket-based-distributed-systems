@@ -64,7 +64,12 @@ public class ServerThread extends Thread {
                     httpDELETE(out, request.getRequest_uri());
                     break;
                 default:
-                    break;
+                    try {
+                        out.write(makeHeader("501 Not Implemented").getBytes());
+                        out.flush();
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }
             }
 
             //Fermer la socket
