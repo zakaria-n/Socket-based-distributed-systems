@@ -1,0 +1,1 @@
+memberSearchIndex = [{"p":"stream","c":"ChatClient","l":"ChatClient()","url":"%3Cinit%3E()"},{"p":"stream","c":"ChatClient","l":"main(String[])","url":"main(java.lang.String[])"}]

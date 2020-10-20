@@ -1,2 +1,12 @@
 
 
+Me just hopped into the server! 
+From Me: Hello !
+From Me: How are you ?
+You just hopped into the server! 
+From You: I am fine thx !
+He just hopped into the server! 
+From He: Hola !
+From Me: Bonjour !
+From You: Heeeey !
+From You: Salut :)
