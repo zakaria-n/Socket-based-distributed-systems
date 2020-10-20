@@ -7,10 +7,11 @@ package stream.server;
 
 import java.io.*;
 import java.net.*;
+import java.util.Iterator;
 import java.util.List;
 
 public class ClientThread extends Thread {
-    
+
     private String clientNickname;
     private Socket clientSocket;
     private List<Participant> participants;
@@ -36,7 +37,7 @@ public class ClientThread extends Thread {
             PrintStream socOut = null;
             socIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             socOut = new PrintStream(clientSocket.getOutputStream());
-            
+
             //System.out.println(loadHistory());
             socOut.print(loadHistory());
             broadcast(clientNickname + " just hopped into the server! ");
@@ -65,29 +66,50 @@ public class ClientThread extends Thread {
             System.err.println("Error in ClientThread:" + e);
         }
     }
-    
-    
+
     public synchronized void broadcast(String message) {
         try {
-            for (Participant p : participants) {               
+            //Premiere boucle pour mettre à jour l'ensemble des participants
+
+            Iterator<Participant> participantIterator = participants.iterator();
+            while (participantIterator.hasNext()) {
+                Participant p = participantIterator.next();
                 Socket s = p.getClientSocket();
-                PrintStream socOut = new PrintStream(s.getOutputStream());            
+                OutputStream output = s.getOutputStream();
+                try {
+                    output.write("CONNECTION_TEST\r\n".getBytes());
+                    //output.flush();
+                } catch (Exception e) {
+                    System.out.println(p.getNickname() + " is disconnected");
+                    participantIterator.remove();
+                }
+                
+                
+            }
+
+            //Deuxieme boucle pour diffuser le message
+            //Et mettre à jour la liste des participants en meme temps
+            for (Participant p : participants) {
+                Socket s = p.getClientSocket();
+                PrintStream socOut = new PrintStream(s.getOutputStream());
                 socOut.println(message);
+                socOut.println("UPDATE_PARTICIPANTS|" + getParticipantsList());
             }
             saveHistory(message);
+
         } catch (Exception e) {
             System.err.println("Broadcast error: " + e);
         }
     }
-    
-    public synchronized String loadHistory(){
+
+    public synchronized String loadHistory() {
         String history = "";
         try {
             BufferedReader reader;
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(path))));
             String line = reader.readLine();
             while (line != null) {
-                history += line+"\n";
+                history += line + "\n";
                 line = reader.readLine();
             }
             reader.close();
@@ -99,8 +121,8 @@ public class ClientThread extends Thread {
 
         return history;
     }
-    
-    public synchronized void saveHistory(String message){
+
+    public synchronized void saveHistory(String message) {
         try {
             File file = new File(path);
             if (file.createNewFile()) { // si le fichier n'existe pas déjà on le crée
@@ -115,15 +137,14 @@ public class ClientThread extends Thread {
             System.out.println(e);
         }
     }
+
     
-    /*
     private String getParticipantsList() {
         String list = "";
-        for (Socket s : participants) {
-            list += (s.getPort() + "|");
+        for (Participant p : participants) {
+            list += (p.getNickname() + "|");
         }
         return list;
     }
-    */
-
+    
 }

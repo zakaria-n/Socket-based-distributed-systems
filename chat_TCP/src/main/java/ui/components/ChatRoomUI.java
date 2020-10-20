@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import stream.client.ChatClient;
 import stream.client.ChatDisplay;
 
 /**
@@ -182,7 +181,7 @@ public class ChatRoomUI extends javax.swing.JFrame {
         try {
             chatDisplay.exit();
             clientSocket.close();
-            this.dispose();
+            System.exit(0);
         } catch (Exception e) {
             System.err.println("LeaveButtonActionPerformed error: " + e);
             e.printStackTrace();
