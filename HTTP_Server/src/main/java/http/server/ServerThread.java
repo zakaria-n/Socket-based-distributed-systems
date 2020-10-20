@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package http.server;
 
 import java.io.BufferedInputStream;
@@ -20,13 +15,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author faouz
+ * Classe représentant un thread de serveur.
+ * Ce choix d'implémentation a été fait pour permettre de lancer plusieurs instances du serveur en parallèle pour pouvoir assurer la réponse à plusieurs clients qui demandent d'accéder à des ressources différentes en parallèles.
+ * @author Faouz Hachim, Zakaria NASSREDDINE
+ * version 1.0
  */
 public class ServerThread extends Thread {
 
     private Socket socket;
-
+    
+    /* Constructeur qui prend en paramètre une socket */
     public ServerThread(Socket s) {
         this.socket = s;
     }
@@ -36,41 +34,42 @@ public class ServerThread extends Thread {
             BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
             BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
 
-            /*
+            
             while(true) {
-                // gérer des requêtes
-            }
-             */
-            //Gérer la requête
-            HTTPRequest request = new HTTPRequest(in);
-            request.readRequest();
-            System.out.println(request.getMethod());
-            System.out.println(request.getRequest_uri());
-
-            switch (request.getMethod()) {
-                case "GET":
-                    httpGET(out, request.getRequest_uri());
-                    break;
-                case "POST":
-                    httpPOST(out, in, request.getRequest_uri());
-                    break;
-                case "PUT":
-                    httpPUT(out, in, request.getRequest_uri());
-                    break;
-                case "HEAD":
-                    httpHEAD(out, request.getRequest_uri());
-                    break;
-                case "DELETE":
-                    httpDELETE(out, request.getRequest_uri());
-                    break;
-                default:
-                    try {
-                        out.write(makeHeader("501 Not Implemented").getBytes());
-                        out.flush();
-                    } catch (Exception e) {
-                        System.out.println(e);
+                HTTPRequest request = new HTTPRequest(in);
+                request.readRequest();
+                System.out.println(request.getMethod());
+                System.out.println(request.getRequest_uri());
+                
+                if (request!=null) {
+                    switch (request.getMethod()) {
+                        case "GET":
+                            httpGET(out, request.getRequest_uri());
+                            break;
+                        case "POST":
+                            httpPOST(out, in, request.getRequest_uri());
+                            break;
+                        case "PUT":
+                            httpPUT(out, in, request.getRequest_uri());
+                            break;
+                        case "HEAD":
+                            httpHEAD(out, request.getRequest_uri());
+                            break;
+                        case "DELETE":
+                            httpDELETE(out, request.getRequest_uri());
+                            break;
+                        default:
+                            try {
+                                out.write(makeHeader("501 Not Implemented").getBytes());
+                                out.flush();
+                            } catch (Exception e) {
+                                System.out.println(e);
+                            }               
                     }
+                } 
             }
+            //Gérer la requête
+            
 
             //Fermer la socket
         } catch (Exception e) {

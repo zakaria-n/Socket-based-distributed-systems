@@ -9,8 +9,9 @@ import java.io.BufferedInputStream;
 import java.util.ArrayList;
 
 /**
- *
- * @author faouz
+ * Une classe représentant une requête HTTP générique..
+ * @author Faouz Hachim
+ * @version 1.0
  */
 public class HTTPRequest {
 
@@ -21,14 +22,15 @@ public class HTTPRequest {
     private String httpVersion;
     private ArrayList<String> fields;
     private ArrayList<String> body;
-
+    
+    // Constructeur de requête: prend en paramètre le flux d'entrée.
     public HTTPRequest(BufferedInputStream input) {
         this.in = input;
     }
 
+    // Méthode qui analyse la requête pour affecter les bonnes valeurs aux attributs.
+    // Le header se termine par la séquence \r\n\r\n (CR LF CR LF)
     public void readRequest() {
-        // Lire la requete et remplir les attributs
-        // Le header se termine par la séquence \r\n\r\n (CR LF CR LF)
         int bcur = '\0';
         int bprec = '\0';
         boolean newline = false;
