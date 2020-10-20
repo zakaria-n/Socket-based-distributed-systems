@@ -142,16 +142,30 @@ public class ServerThread extends Thread {
             File resource = new File(request_uri);
             boolean newFile = resource.createNewFile();
             
-            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource, resource.exists()));
-
-            byte[] buffer = new byte[256];
-            while(in.available() > 0) {
-                int nbRead = in.read(buffer);
-                fileOut.write(buffer, 0, nbRead);
+            if (getContentType(resource).equals("python")){
+                byte[] buffer = new byte[256];
+                int nbRead=0;
+                while(in.available() > 0) {
+                    nbRead = in.read(buffer);
+                }
+                String S = new String(buffer);
+                S = S.substring(0,nbRead);
+                System.out.println(S);
+               
+                Process process = Runtime.getRuntime().exec("/usr/local/bin/python3 /Users/zakaria/Documents/GitHub/Socket-based-distributed-systems/resources/adder.py "+ S + " --sum");
             }
-            fileOut.flush();
-            fileOut.close();
+            
+            else {
+                BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource, resource.exists()));
 
+                byte[] buffer = new byte[256];
+                while(in.available() > 0) {
+                    int nbRead = in.read(buffer);
+                    fileOut.write(buffer, 0, nbRead);
+                }
+                fileOut.flush();
+                fileOut.close();
+            }
             if (newFile) {
                 out.write(makeHeader("201 Created").getBytes());
                 out.write("\r\n".getBytes());
@@ -296,6 +310,8 @@ public class ServerThread extends Thread {
             type = "Content-Type: application/vnd.oasis.opendocument.text\r\n";
         } else if (fileName.endsWith(".json")) {
             type = "Content-Type: application/json\r\n";
+        } else if (fileName.endsWith(".py")) {
+            type = "python";
         }
 
         return type;
