@@ -6,7 +6,6 @@
 package http.server;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.util.ArrayList;
 
 /**
@@ -15,7 +14,7 @@ import java.util.ArrayList;
  */
 public class HTTPRequest {
 
-    private BufferedReader in;
+    private BufferedInputStream in;
 
     private String method;
     private String request_uri;
@@ -23,7 +22,7 @@ public class HTTPRequest {
     private ArrayList<String> fields;
     private ArrayList<String> body;
 
-    public HTTPRequest(BufferedReader input) {
+    public HTTPRequest(BufferedInputStream input) {
         this.in = input;
     }
 

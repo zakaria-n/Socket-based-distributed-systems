@@ -33,8 +33,7 @@ public class ServerThread extends Thread {
 
     public void run() {
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    socket.getInputStream()));
+            BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
             BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
 
             /*
@@ -56,16 +55,21 @@ public class ServerThread extends Thread {
                     httpPOST(out, in, request.getRequest_uri());
                     break;
                 case "PUT":
-                    //
+                    httpPUT(out, in, request.getRequest_uri());
                     break;
                 case "HEAD":
-                    //
+                    httpHEAD(out, request.getRequest_uri());
                     break;
                 case "DELETE":
-                    //
+                    httpDELETE(out, request.getRequest_uri());
                     break;
                 default:
-                    break;
+                    try {
+                        out.write(makeHeader("501 Not Implemented").getBytes());
+                        out.flush();
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }
             }
 
             //Fermer la socket
@@ -76,74 +80,41 @@ public class ServerThread extends Thread {
     }
 
     private void httpGET(BufferedOutputStream out, String request_uri) {
-        //Répond à une requete GET
-        File file = new File(request_uri);
-        BufferedReader reader = null;
-        String code = null;
-        String toSend = new String();
-        boolean success = false;
+        File resource = new File(request_uri);
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            int cur = '\0';
-
-            while ((cur = reader.read()) != -1) {
-                toSend += (char) cur;
+            boolean exists = resource.exists();
+            boolean valid = resource.isFile();
+            if (exists && valid){
+                long length = resource.length();
+                String type = getContentType(resource);
+                out.write(makeHeader("200 OK",type, length).getBytes());
+                BufferedInputStream in = new BufferedInputStream(new FileInputStream(resource));
+                byte[] buffer = new byte[1000];
+                int nbRead;
+                while((nbRead = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, nbRead);
+                }
+                in.close();
+                out.flush();             
+            }else{
+                String type = "Content-Type: text/html\r\n";
+                String code = valid ? "403 Forbidden" : "404 Not Found";
+                String body = valid ? forbidden : notFound;
+                long length = (long) body.length();
+                out.write(makeHeader(code, type, length).getBytes());
+                out.write(body.getBytes());
+                out.flush();
             }
-            code = "200 OK";
-            success = true;
-        } catch (FileNotFoundException ex) {
-            System.err.println("Error in httpGET: " + ex);
-            ex.printStackTrace();
-            
-            if(file.isFile()) {
-                code = "403 Forbidden";
-            } else {
-                code = "404 Not Found";
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            try {
+                out.write(makeHeader("500 Internal Server Error").getBytes());
+                out.flush();
+            } catch (Exception e2) {
+                e2.printStackTrace();
             }
-
-        } catch (IOException ex) {
-            System.err.println("Error in httpGET: " + ex);
-            code = "404 Not Found";
-            ex.printStackTrace();
         }
-
-        String type = "...";
-        long length = 0;
-
-        switch (code) {
-
-            case "200 OK":
-                type = getContentType(file);
-                length = file.length();
-
-                break;
-
-            case "404 Not Found":
-                type = "Content-Type: text/html\r\n";
-                length = (long) notFound.length();
-                toSend = notFound;
-                break;
-            
-            case "403 Forbidden":
-                type = "Content-Type: text/html\r\n";
-                length = (long) forbidden.length();
-                toSend = forbidden;
-                break;
-                
-            
-            default:
-                break;
-        }
-
-        try {
-            out.write(makeHeader(code, type, length).getBytes());
-            out.write(toSend.getBytes());
-            out.flush();
-        } catch (IOException ex) {
-            System.err.println("Error in httpGET: " + ex);
-            ex.printStackTrace();
-        }
-
     }
 
     private String makeHeader(String code, String type, long length) {
@@ -165,26 +136,36 @@ public class ServerThread extends Thread {
         return header;
     }
 
-    private void httpPOST(BufferedOutputStream out, BufferedReader in, String request_uri) {
+    private void httpPOST(BufferedOutputStream out, BufferedInputStream in, String request_uri) {
+        //Répond à une requête POST
         try {
             File resource = new File(request_uri);
             boolean newFile = resource.createNewFile();
-
-
-            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource, resource.exists()));
-
-            byte[] buffer = new byte[1024];
-            String lineBody = in.readLine();
-            while (lineBody != null && !lineBody.equals("")) {
-                System.out.println("line :" + lineBody);
-                lineBody = in.readLine();
-                fileOut.write(lineBody.getBytes(), 0, lineBody.getBytes().length);
-                fileOut.write("\r\n".getBytes(), 0, "\r\n".getBytes().length);
-                lineBody = in.readLine();
+            
+            if (getContentType(resource).equals("python")){
+                byte[] buffer = new byte[256];
+                int nbRead=0;
+                while(in.available() > 0) {
+                    nbRead = in.read(buffer);
+                }
+                String S = new String(buffer);
+                S = S.substring(0,nbRead);
+                System.out.println(S);
+               
+                Process process = Runtime.getRuntime().exec("/usr/local/bin/python3 /Users/zakaria/Documents/GitHub/Socket-based-distributed-systems/resources/adder.py "+ S + " --sum");
             }
-            fileOut.flush();
-            fileOut.close();
+            
+            else {
+                BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource, resource.exists()));
 
+                byte[] buffer = new byte[256];
+                while(in.available() > 0) {
+                    int nbRead = in.read(buffer);
+                    fileOut.write(buffer, 0, nbRead);
+                }
+                fileOut.flush();
+                fileOut.close();
+            }
             if (newFile) {
                 out.write(makeHeader("201 Created").getBytes());
                 out.write("\r\n".getBytes());
@@ -202,10 +183,108 @@ public class ServerThread extends Thread {
             } catch (Exception e2) {
                 System.out.println(e);
             }
-
         }
     }
 
+    private void httpPUT(BufferedOutputStream out, BufferedInputStream in, String request_uri) {
+        //Répond à une requête PUT
+        try {
+            File resource = new File(request_uri);
+            if (!resource.createNewFile()){
+                PrintWriter pw = new PrintWriter(resource);
+                pw.close();
+            }
+            
+            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource, resource.exists()));
+
+            byte[] buffer = new byte[256];
+            while(in.available() > 0) {
+                int nbRead = in.read(buffer);
+                fileOut.write(buffer, 0, nbRead);
+            }
+            fileOut.flush();
+            fileOut.close();
+
+            if (resource.createNewFile()) {
+                out.write(makeHeader("204 No Content").getBytes());
+                out.write("\r\n".getBytes());
+            } else {
+                out.write(makeHeader("201 Created").getBytes());
+                out.write("\r\n".getBytes());
+            }
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                out.write(makeHeader("500 Internal Server Error").getBytes());
+                out.write("\r\n".getBytes());
+                out.flush();
+            } catch (Exception e2) {
+                System.out.println(e);
+            }
+
+        }
+    }
+    
+    private void httpDELETE(BufferedOutputStream out, String request_uri) {
+        //Répond à une requête DELETE
+        try {
+            File resource = new File(request_uri);
+            boolean exists = resource.exists();
+            boolean removed = false;
+            
+            if (exists && resource.isFile()){
+                removed = resource.delete();
+            }
+
+            if(removed) {
+                out.write(makeHeader("204 No Content").getBytes());
+                out.write("\r\n".getBytes());
+            } else if (!exists) {
+                out.write(makeHeader("404 Not Found").getBytes());
+                out.write("\r\n".getBytes());
+            } else {
+                out.write(makeHeader("403 Forbidden").getBytes());
+                out.write("\r\n".getBytes());
+            }
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                out.write(makeHeader("500 Internal Server Error").getBytes());
+                out.write("\r\n".getBytes());
+                out.flush();
+            } catch (Exception e2) {
+                System.out.println(e);
+            }
+
+        }
+    }
+    
+    private void httpHEAD(BufferedOutputStream out, String request_uri) {
+        try{
+            File resource = new File(request_uri);
+            if (resource.exists() && resource.isFile()){
+                long length = resource.length();
+                String type = getContentType(resource);
+                out.write(makeHeader("200 OK", type, length).getBytes());
+                out.write("\r\n".getBytes());
+            }else{
+                out.write(makeHeader("404 Not Found").getBytes());
+                out.write("\r\n".getBytes());
+            }
+            out.flush();
+        }catch (IOException e) {
+            e.printStackTrace();
+            try {
+                 out.write(makeHeader("500 Internal Server Error").getBytes());
+                 out.flush();
+            } catch (Exception e2) {
+                System.out.println(e);
+            }
+        }
+        
+    }
     public String getContentType(File file) {
 
         String fileName = file.getName();
@@ -231,6 +310,8 @@ public class ServerThread extends Thread {
             type = "Content-Type: application/vnd.oasis.opendocument.text\r\n";
         } else if (fileName.endsWith(".json")) {
             type = "Content-Type: application/json\r\n";
+        } else if (fileName.endsWith(".py")) {
+            type = "python";
         }
 
         return type;
