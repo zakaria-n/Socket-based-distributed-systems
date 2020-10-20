@@ -2,21 +2,16 @@ package http.server;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Classe représentant un thread de serveur.
- * Ce choix d'implémentation a été fait pour permettre de lancer plusieurs instances du serveur en parallèle pour pouvoir assurer la réponse à plusieurs clients qui demandent d'accéder à des ressources différentes en parallèles.
+ * Ce choix d'implémentation a été fait pour permettre de lancer plusieurs instances du serveur en parallèle pour pouvoir assurer la réponse à plusieurs clients qui demandent d'accéder à des ressources différentes.
  * @author Faouz Hachim, Zakaria NASSREDDINE
  * version 1.0
  */
@@ -31,16 +26,19 @@ public class ServerThread extends Thread {
 
     public void run() {
         try {
+            // Ouverture du flux de lecture qui permettra de lire le contenu de la requête envoyée par le client 
             BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
+            // Ouverture du flux d'écriture qui permettra d'envoyer du contenu au client sous forme de bytes 
             BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
 
-            
+            // Attend indéfiniment des requêtes pour les traiter, tel un bon petit serveur !
             while(true) {
                 HTTPRequest request = new HTTPRequest(in);
                 request.readRequest();
                 System.out.println(request.getMethod());
                 System.out.println(request.getRequest_uri());
                 
+                /* Traite la requête en fonction de son type */
                 if (request!=null) {
                     switch (request.getMethod()) {
                         case "GET":
@@ -59,6 +57,7 @@ public class ServerThread extends Thread {
                             httpDELETE(out, request.getRequest_uri());
                             break;
                         default:
+                            /* Cas où le serveur ne sait pas traiter le type de requête reçue */
                             try {
                                 out.write(makeHeader("501 Not Implemented").getBytes());
                                 out.flush();
@@ -68,10 +67,9 @@ public class ServerThread extends Thread {
                     }
                 } 
             }
-            //Gérer la requête
             
 
-            //Fermer la socket
+        /* Tentative de prévenir le client dans le cas où tout échoue. */
         } catch (Exception e) {
             System.err.println("Error in ServerThread: " + e);
             e.printStackTrace();
