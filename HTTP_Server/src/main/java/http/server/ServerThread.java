@@ -1,40 +1,40 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package http.server;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
+ * Classe représentant un thread de serveur. Ce choix d'implémentation a été
+ * fait pour permettre de lancer plusieurs instances du serveur en parallèle
+ * pour pouvoir assurer la réponse à plusieurs clients qui demandent d'accéder à
+ * des ressources différentes.
  *
- * @author faouz
+ * @author Faouz Hachim, Zakaria NASSREDDINE version 1.0
  */
 public class ServerThread extends Thread {
 
     private Socket socket;
 
+    /* Constructeur qui prend en paramètre une socket */
     public ServerThread(Socket s) {
         this.socket = s;
     }
 
     public void run() {
         try {
+            // Ouverture du flux de lecture qui permettra de lire le contenu de la requête envoyée par le client 
             BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
+            // Ouverture du flux d'écriture qui permettra d'envoyer du contenu au client sous forme de bytes 
             BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
+
+
+            // Attend indéfiniment des requêtes pour les traiter, tel un bon petit serveur !
 
             while (true) {
                 HTTPRequest request = new HTTPRequest(in);
@@ -42,40 +42,62 @@ public class ServerThread extends Thread {
                 System.out.println(request.getMethod());
                 System.out.println(request.getRequest_uri());
 
-                switch (request.getMethod()) {
-                    case "GET":
-                        httpGET(out, request.getRequest_uri());
-                        break;
-                    case "POST":
-                        httpPOST(out, in, request.getRequest_uri());
-                        break;
-                    case "PUT":
-                        httpPUT(out, in, request.getRequest_uri());
-                        break;
-                    case "HEAD":
-                        httpHEAD(out, request.getRequest_uri());
-                        break;
-                    case "DELETE":
-                        httpDELETE(out, request.getRequest_uri());
-                        break;
-                    default:
-                    try {
-                        out.write(makeHeader("501 Not Implemented").getBytes());
-                        out.flush();
-                    } catch (Exception e) {
-                        System.out.println(e);
+
+                /* Traite la requête en fonction de son type */
+                if (request != null) {
+                    switch (request.getMethod()) {
+                        case "GET":
+                            httpGET(out, request.getRequest_uri());
+                            break;
+                        case "POST":
+                            httpPOST(out, in, request.getRequest_uri());
+                            break;
+                        case "PUT":
+                            httpPUT(out, in, request.getRequest_uri());
+                            break;
+                        case "HEAD":
+                            httpHEAD(out, request.getRequest_uri());
+                            break;
+                        case "DELETE":
+                            httpDELETE(out, request.getRequest_uri());
+                            break;
+                        default:
+                            /* Cas où le serveur ne sait pas traiter le type de requête reçue */
+                            try {
+                            out.write(makeHeader("501 Not Implemented").getBytes());
+                            out.flush();
+                        } catch (Exception e) {
+                            System.out.println(e);
+                        }
                     }
-                }// gérer des requêtes
+                }
+
             }
             //Gérer la requête
 
-            //Fermer la socket
+
+            /* Tentative de prévenir le client dans le cas où tout échoue. */
         } catch (Exception e) {
             System.err.println("Error in ServerThread: " + e);
             e.printStackTrace();
         }
     }
 
+    /**
+     * Implémentation du traitement d'une requete GET - cette méthode retourne
+     * une page WEB identifiée par son URL Tente d'ouvrir et de lire la
+     * ressource demandee et de l'envoyer au client, sous forme de bytes. /!\ on
+     * aurait pu envoyer sous forme de string les fichiers txt ou html... mais
+     * ici la méthode est générale et peut aussi être amené à envoyer des medias
+     * On renvoie le code 200 OK si le fichier a ete trouve et 404 Not Found
+     * sinon. Le corps de la reponse est le contenu du fichier, transmis en
+     * bytes, ou bien le contenu de la page fileNotFound du serveur
+     *
+     * @param out Flux d'ecriture binaire vers le socket client auquel il faut
+     * envoyer une reponse.
+     * @param request_uri Référence vers le fichier que le client souhaite
+     * consulter.
+     */
     private void httpGET(BufferedOutputStream out, String request_uri) {
         File resource = new File(request_uri);
         try {
@@ -113,6 +135,16 @@ public class ServerThread extends Thread {
         }
     }
 
+    /**
+     * Cette methode permet de creer un en-tete de reponse HTML, pour une
+     * reponse qui aura un corps. L'en-tete cree contient un code de retour et
+     * precise le type du serveur : Bot, le type de contenu du corps et la
+     * taille du corps en bytes.
+     *
+     * @param code
+     * @param type
+     * @length 
+     */
     private String makeHeader(String code, String type, long length) {
 
         String header;
@@ -125,6 +157,15 @@ public class ServerThread extends Thread {
         return header;
     }
 
+    /**
+     * Cette methode renvoie une en-tête HTML simple, pour une reponse qui n'a
+     * pas de corps. L'en-tete cree contient un code de retour et precise le
+     * type du serveur : Bot.
+     *
+     * @param code le code de reponse HTML a fournir dans l'en-tete.
+     * @return l'en-tete de reponse HTML.
+     *
+    */
     private String makeHeader(String code) {
         String header = "HTTP/1.1 " + code + "\r\n";
         header += "Server: Mini WebServer\r\n";
@@ -132,6 +173,18 @@ public class ServerThread extends Thread {
         return header;
     }
 
+    /**
+     * Envoie d'une réponse à une requete POST - Implementation de la methode
+     * HTTP POST. Similaire à la méthode putRequest à la seule différence que
+     * dans le cas d'édition d'un fichier existant post écrit le contenu à la
+     * suite de celui du fichier et ne l'écrase pas
+     *
+     * @param out flux d'écriture vers le socket client pour lui renvoyer une
+     * en-tête / un header
+     * @param in flux de lecture du socket client, dont on veut lire le corps /
+     * body
+     * @param request_uri chemin du fichier que le client veut creer ou editer.
+     */
     private void httpPOST(BufferedOutputStream out, BufferedInputStream in, String request_uri) {
         //Répond à une requête POST
         try {
@@ -180,6 +233,19 @@ public class ServerThread extends Thread {
         }
     }
 
+    /**
+     * Implémentation du traitement d'une requete POST - cette méthode envoie du
+     * contenu au serveur qui le stocke à l'adresse spécifiée / remplace son
+     * contenue s'il y a déjà une ressource existante à cet emplacement Tente de
+     * créer la ressource indiquee, de lire le corps de la requete et d'écrire
+     * ce contenu dans le fichier ressource créé
+     *
+     * @param out flux d'écriture vers le socket client pour lui renvoyer une
+     * en-tête / un header
+     * @param in flux de lecture du socket client, dont on veut lire le corps /
+     * body
+     * @param request_uri chemin du fichier que le client veut creer ou editer.
+     */
     private void httpPUT(BufferedOutputStream out, BufferedInputStream in, String request_uri) {
         //Répond à une requête PUT
         try {
@@ -220,6 +286,17 @@ public class ServerThread extends Thread {
         }
     }
 
+
+    /**
+     * Envoie d'une réponse à une requete DELETE - Implementation de la methode
+     * HTTP DELETE. Cette méthode a pour but de supprimer la ressource indiquee
+     * par le client
+     *
+     * @param out flux d'ecriture binaire vers le socket client auquel il faut
+     * envoyer une reponse.
+     * @param request_uri chemin du fichier que le client veut supprimer.
+     */
+
     private void httpDELETE(BufferedOutputStream out, String request_uri) {
         //Répond à une requête DELETE
         try {
@@ -255,6 +332,18 @@ public class ServerThread extends Thread {
         }
     }
 
+
+    /**
+     * Envoie d'une réponse à une requete HEAD - Implementation de la methode
+     * HTTP HEAD. a method to return the head of the Web page identified by the
+     * URL (the head contains summary information such as title, date of
+     * creation, etc. /!\ IL FAUDRAIT AUSSI RENVOYER LE TYPE DE CONTENU LE
+     * REFERRER POLICY, LA DATE etc.
+     *
+     * @param out Flux d'ecriture binaire vers le socket client auquel il faut
+     * envoyer une reponse.
+     * @param request_uri Chemin du fichier que le client veut consulter.
+     */
     private void httpHEAD(BufferedOutputStream out, String request_uri) {
         try {
             File resource = new File(request_uri);
@@ -280,6 +369,11 @@ public class ServerThread extends Thread {
 
     }
 
+    
+    /** Méthode qui renvoie le type de la resource concernée par la requête.
+     * Utile pour les headers et pour exécuter des ressources dynamique.
+     * @param file indiquant la ressource.
+    */
     public String getContentType(File file) {
 
         String fileName = file.getName();
@@ -312,6 +406,10 @@ public class ServerThread extends Thread {
         return type;
     }
 
+    
+    /** Chaîne de caractère servant à construire la page HTML à retourner dans le cas d'une ressource inexistante
+    
+    */
     private static final String notFound = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
             + "<html>\n"
             + "<head>\n"
@@ -323,6 +421,9 @@ public class ServerThread extends Thread {
             + "</body>\n"
             + "</html> ";
 
+    /** Chaîne de caractère servant à construire la page HTML à retourner dans le cas d'une ressource à accès non restreint.
+    
+    */
     private static final String forbidden = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
             + "<html>\n"
             + "<head>\n"
