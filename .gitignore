@@ -2,3 +2,5 @@
 /chat_UDP/target/
 /HTTP_Server/target/
 /chat_GUI/target/
+/TCP_chat/nbproject/private/
+/TCP_chat/build/

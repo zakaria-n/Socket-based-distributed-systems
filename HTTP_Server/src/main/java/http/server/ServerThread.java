@@ -36,41 +36,38 @@ public class ServerThread extends Thread {
             BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
             BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
 
-            /*
-            while(true) {
-                // gérer des requêtes
-            }
-             */
-            //Gérer la requête
-            HTTPRequest request = new HTTPRequest(in);
-            request.readRequest();
-            System.out.println(request.getMethod());
-            System.out.println(request.getRequest_uri());
+            while (true) {
+                HTTPRequest request = new HTTPRequest(in);
+                request.readRequest();
+                System.out.println(request.getMethod());
+                System.out.println(request.getRequest_uri());
 
-            switch (request.getMethod()) {
-                case "GET":
-                    httpGET(out, request.getRequest_uri());
-                    break;
-                case "POST":
-                    httpPOST(out, in, request.getRequest_uri());
-                    break;
-                case "PUT":
-                    httpPUT(out, in, request.getRequest_uri());
-                    break;
-                case "HEAD":
-                    httpHEAD(out, request.getRequest_uri());
-                    break;
-                case "DELETE":
-                    httpDELETE(out, request.getRequest_uri());
-                    break;
-                default:
+                switch (request.getMethod()) {
+                    case "GET":
+                        httpGET(out, request.getRequest_uri());
+                        break;
+                    case "POST":
+                        httpPOST(out, in, request.getRequest_uri());
+                        break;
+                    case "PUT":
+                        httpPUT(out, in, request.getRequest_uri());
+                        break;
+                    case "HEAD":
+                        httpHEAD(out, request.getRequest_uri());
+                        break;
+                    case "DELETE":
+                        httpDELETE(out, request.getRequest_uri());
+                        break;
+                    default:
                     try {
                         out.write(makeHeader("501 Not Implemented").getBytes());
                         out.flush();
                     } catch (Exception e) {
                         System.out.println(e);
                     }
+                }// gérer des requêtes
             }
+            //Gérer la requête
 
             //Fermer la socket
         } catch (Exception e) {
@@ -84,19 +81,19 @@ public class ServerThread extends Thread {
         try {
             boolean exists = resource.exists();
             boolean valid = resource.isFile();
-            if (exists && valid){
+            if (exists && valid) {
                 long length = resource.length();
                 String type = getContentType(resource);
-                out.write(makeHeader("200 OK",type, length).getBytes());
+                out.write(makeHeader("200 OK", type, length).getBytes());
                 BufferedInputStream in = new BufferedInputStream(new FileInputStream(resource));
                 byte[] buffer = new byte[1000];
                 int nbRead;
-                while((nbRead = in.read(buffer)) != -1) {
+                while ((nbRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, nbRead);
                 }
                 in.close();
-                out.flush();             
-            }else{
+                out.flush();
+            } else {
                 String type = "Content-Type: text/html\r\n";
                 String code = valid ? "403 Forbidden" : "404 Not Found";
                 String body = valid ? forbidden : notFound;
@@ -105,8 +102,7 @@ public class ServerThread extends Thread {
                 out.write(body.getBytes());
                 out.flush();
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             try {
                 out.write(makeHeader("500 Internal Server Error").getBytes());
@@ -141,25 +137,23 @@ public class ServerThread extends Thread {
         try {
             File resource = new File(request_uri);
             boolean newFile = resource.createNewFile();
-            
-            if (getContentType(resource).equals("python")){
+
+            if (getContentType(resource).equals("python")) {
                 byte[] buffer = new byte[256];
-                int nbRead=0;
-                while(in.available() > 0) {
+                int nbRead = 0;
+                while (in.available() > 0) {
                     nbRead = in.read(buffer);
                 }
                 String S = new String(buffer);
-                S = S.substring(0,nbRead);
+                S = S.substring(0, nbRead);
                 System.out.println(S);
-               
-                Process process = Runtime.getRuntime().exec("/usr/local/bin/python3 /Users/zakaria/Documents/GitHub/Socket-based-distributed-systems/resources/adder.py "+ S + " --sum");
-            }
-            
-            else {
+
+                Process process = Runtime.getRuntime().exec("/usr/local/bin/python3 /Users/zakaria/Documents/GitHub/Socket-based-distributed-systems/resources/adder.py " + S + " --sum");
+            } else {
                 BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource, resource.exists()));
 
                 byte[] buffer = new byte[256];
-                while(in.available() > 0) {
+                while (in.available() > 0) {
                     int nbRead = in.read(buffer);
                     fileOut.write(buffer, 0, nbRead);
                 }
@@ -190,15 +184,15 @@ public class ServerThread extends Thread {
         //Répond à une requête PUT
         try {
             File resource = new File(request_uri);
-            if (!resource.createNewFile()){
+            if (!resource.createNewFile()) {
                 PrintWriter pw = new PrintWriter(resource);
                 pw.close();
             }
-            
+
             BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(resource, resource.exists()));
 
             byte[] buffer = new byte[256];
-            while(in.available() > 0) {
+            while (in.available() > 0) {
                 int nbRead = in.read(buffer);
                 fileOut.write(buffer, 0, nbRead);
             }
@@ -225,19 +219,19 @@ public class ServerThread extends Thread {
 
         }
     }
-    
+
     private void httpDELETE(BufferedOutputStream out, String request_uri) {
         //Répond à une requête DELETE
         try {
             File resource = new File(request_uri);
             boolean exists = resource.exists();
             boolean removed = false;
-            
-            if (exists && resource.isFile()){
+
+            if (exists && resource.isFile()) {
                 removed = resource.delete();
             }
 
-            if(removed) {
+            if (removed) {
                 out.write(makeHeader("204 No Content").getBytes());
                 out.write("\r\n".getBytes());
             } else if (!exists) {
@@ -260,31 +254,32 @@ public class ServerThread extends Thread {
 
         }
     }
-    
+
     private void httpHEAD(BufferedOutputStream out, String request_uri) {
-        try{
+        try {
             File resource = new File(request_uri);
-            if (resource.exists() && resource.isFile()){
+            if (resource.exists() && resource.isFile()) {
                 long length = resource.length();
                 String type = getContentType(resource);
                 out.write(makeHeader("200 OK", type, length).getBytes());
                 out.write("\r\n".getBytes());
-            }else{
+            } else {
                 out.write(makeHeader("404 Not Found").getBytes());
                 out.write("\r\n".getBytes());
             }
             out.flush();
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             try {
-                 out.write(makeHeader("500 Internal Server Error").getBytes());
-                 out.flush();
+                out.write(makeHeader("500 Internal Server Error").getBytes());
+                out.flush();
             } catch (Exception e2) {
                 System.out.println(e);
             }
         }
-        
+
     }
+
     public String getContentType(File file) {
 
         String fileName = file.getName();
@@ -316,8 +311,7 @@ public class ServerThread extends Thread {
 
         return type;
     }
-    
-    
+
     private static final String notFound = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
             + "<html>\n"
             + "<head>\n"
@@ -328,7 +322,7 @@ public class ServerThread extends Thread {
             + "   <p>The requested URL was not found on this server.</p>\n"
             + "</body>\n"
             + "</html> ";
-    
+
     private static final String forbidden = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
             + "<html>\n"
             + "<head>\n"
@@ -339,5 +333,5 @@ public class ServerThread extends Thread {
             + "   <p>Access is forbidden to the requested page.</p>\n"
             + "</body>\n"
             + "</html> ";
-    
+
 }

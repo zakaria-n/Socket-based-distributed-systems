@@ -45,7 +45,7 @@ public class ChatRoomUI extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         LeaveButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        ParticipantsJList = new javax.swing.JList<>();
+        ParticipantsJList = new javax.swing.JList<String>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Saeka Messenger");
