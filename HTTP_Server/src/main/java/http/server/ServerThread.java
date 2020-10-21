@@ -79,16 +79,15 @@ public class ServerThread extends Thread {
     }
 
     /**
-     * Implémentation du traitement d'une requete  HTTP GET - cette méthode retourne
+     * Implementation du traitement d'une requete  HTTP GET - cette methode retourne
      * la resource à consulter identifiée par son URI.
      * On essaie d'ouvrir la ressource et de l'envoyer sur le flux du client sous formes de byte.
      * Ce transfert en bytes est générique et est compatible avec plusieurs types de fichiers.
-     * Dans le cas où la ressource a été retrouvée, on envoie un code de status 200, 404 si elle n'existe et 403 si on a pas les droits d'accès.
-     * Dans ces deux derniers cas, la page HTML correspondante est retournée au client dans le corps de la réponse. 
+     * Dans le cas où la ressource a été retrouvée, on envoie un code de status 200, 404 si elle n'existe et 403 si on a pas les droits d'acces.
+     * Dans ces deux derniers cas, la page HTML correspondante est retournee au client dans le corps de la réponse. 
      * Si un erreur se produit côté serveur, il tente d'envoyer un code d'erreur 500.
      * @param out Flux d'ecriture binaire vers la socket client sur laquelle on envoie la reponse.
-     * @param request_uri Référence vers le fichier que le client souhaite
-     * consulter.
+     * @param request_uri Reference vers le fichier que le client souhaite consulter.
      */
     private void httpGET(BufferedOutputStream out, String request_uri) {
         File resource = new File(request_uri);
