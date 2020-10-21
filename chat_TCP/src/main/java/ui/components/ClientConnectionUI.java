@@ -167,6 +167,7 @@ public class ClientConnectionUI extends javax.swing.JFrame {
             socOut.println(roomID);
             affichage = new ChatDisplay(socket);          
             crui = new ChatRoomUI(socket,affichage);
+            crui.setTitle("Saeka Messenger | Room " + roomID);
             affichage.setChatRoomUI(crui);
             affichage.start();
             crui.setVisible(true);

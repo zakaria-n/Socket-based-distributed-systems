@@ -71,7 +71,7 @@ public class ClientThread extends Thread {
     public synchronized void broadcast(String message) {
         try {
             //Premiere boucle pour mettre à jour l'ensemble des participants
-
+            String toSend = "";
             Iterator<Participant> participantIterator = room.getParticipants().iterator();
             while (participantIterator.hasNext()) {
                 Participant p = participantIterator.next();
@@ -82,6 +82,7 @@ public class ClientThread extends Thread {
                     //output.flush();
                 } catch (Exception e) {
                     System.out.println(p.getNickname() + " is disconnected");
+                    toSend += p.getNickname() + " left the chat.\r\n";
                     participantIterator.remove();
                 }
                 
@@ -95,6 +96,9 @@ public class ClientThread extends Thread {
                 PrintStream socOut = new PrintStream(s.getOutputStream());
                 socOut.println(message);
                 socOut.println("UPDATE_PARTICIPANTS|" + getParticipantsList());
+                if (toSend.length()>0) {
+                    socOut.println(toSend);
+                }
             }
             saveHistory(message);
 
