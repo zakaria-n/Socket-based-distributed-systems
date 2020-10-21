@@ -79,17 +79,14 @@ public class ServerThread extends Thread {
     }
 
     /**
-     * Implémentation du traitement d'une requete GET - cette méthode retourne
-     * une page WEB identifiée par son URL Tente d'ouvrir et de lire la
-     * ressource demandee et de l'envoyer au client, sous forme de bytes. /!\ on
-     * aurait pu envoyer sous forme de string les fichiers txt ou html... mais
-     * ici la méthode est générale et peut aussi être amené à envoyer des medias
-     * On renvoie le code 200 OK si le fichier a ete trouve et 404 Not Found
-     * sinon. Le corps de la reponse est le contenu du fichier, transmis en
-     * bytes, ou bien le contenu de la page fileNotFound du serveur
-     *
-     * @param out Flux d'ecriture binaire vers le socket client auquel il faut
-     * envoyer une reponse.
+     * Implémentation du traitement d'une requete  HTTP GET - cette méthode retourne
+     * la resource à consulter identifiée par son URI.
+     * On essaie d'ouvrir la ressource et de l'envoyer sur le flux du client sous formes de byte.
+     * Ce transfert en bytes est générique et est compatible avec plusieurs types de fichiers.
+     * Dans le cas où la ressource a été retrouvée, on envoie un code de status 200, 404 si elle n'existe et 403 si on a pas les droits d'accès.
+     * Dans ces deux derniers cas, la page HTML correspondante est retournée au client dans le corps de la réponse. 
+     * Si un erreur se produit côté serveur, il tente d'envoyer un code d'erreur 500.
+     * @param out Flux d'ecriture binaire vers la socket client sur laquelle on envoie la reponse.
      * @param request_uri Référence vers le fichier que le client souhaite
      * consulter.
      */
