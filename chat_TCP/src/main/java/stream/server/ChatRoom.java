@@ -29,11 +29,10 @@ public class ChatRoom {
     private BufferedWriter writer = null;
     private BufferedReader reader = null;
     
-    ChatRoom(String roomName) {
+    ChatRoom() {
         this.id = iD++;
-        this.name = roomName;
         try {
-            this.historyFile = "../data" + name + "_" + id + ".txt";
+            this.historyFile = "../data/room"+ "_" + id + ".txt";
             File file = new File(historyFile);
             if (file.createNewFile()) { // si le fichier n'existe pas déjà on le crée
                 System.out.println("The history file for room "+ id + " has been created.");

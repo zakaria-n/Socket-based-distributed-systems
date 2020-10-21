@@ -16,6 +16,7 @@ public class Participant {
     
     private Socket clientSocket;
     private String nickname;
+    private ChatRoom room;
     
     Participant(Socket cs, String n) {
         clientSocket = cs;
