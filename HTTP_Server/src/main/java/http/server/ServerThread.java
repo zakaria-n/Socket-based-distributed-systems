@@ -170,11 +170,9 @@ public class ServerThread extends Thread {
      * dans le cas d'édition d'un fichier existant post écrit le contenu à la
      * suite de celui du fichier et ne l'écrase pas
      *
-     * @param out flux d'écriture vers le socket client pour lui renvoyer une
-     * en-tête / un header
-     * @param in flux de lecture du socket client, dont on veut lire le corps /
-     * body
-     * @param request_uri chemin du fichier que le client veut creer ou editer.
+     * @param out flux d'écriture vers la socket client sur laquelle on envoie la reponse.
+     * @param in flux de lecture de socket client, dont on veut lire le body
+     * @param request_uri reference de la resource que le client veut creer ou editer.
      */
     private void httpPOST(BufferedOutputStream out, BufferedInputStream in, String request_uri) {
         //Répond à une requête POST
