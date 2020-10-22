@@ -15,33 +15,44 @@ public class ChatServer {
 	
    /**
     * 
-    * Méthode main
+    * Méthode main.
+    * Lance une socket d'écoute et récupère les demandes de connexion.
+    * Pour chaque connexion, lance un thread ClientThread qui gérera le participant.
     * Usage: java ChatServer <Server port> 
     * @param Server port 
     *
     */
    public static void main(String args[]) {
 	   
-	   
-       ServerSocket listenSocket;
+	   ServerSocket listenSocket;
+       
        if (args.length != 1) {
            System.out.println("Usage: java ChatServer <Server port>");
            System.exit(1);
        }
        
+       // Initialisation des 10 rooms de chat
+       ChatRoom[] allRooms = new ChatRoom[10];
+       for (int i=0; i<10; i++){
+           allRooms[i] = new ChatRoom();
+       }
+       
        try {
-           List<Participant> participants;
-           participants = new ArrayList<Participant>();
-           listenSocket = new ServerSocket(Integer.parseInt(args[0])); 
+           listenSocket = new ServerSocket(Integer.parseInt(args[0])); //port
            System.out.println("Server ready...");
            while (true) {
                Socket clientSocket = listenSocket.accept();
                System.out.println("Connexion from:" + clientSocket.getInetAddress());
                BufferedReader socIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-               String nickname = socIn.readLine(); //La premiere ligne recue est le pseudo du participant
-               Participant participant = new Participant(clientSocket, nickname);
-               participants.add(participant);
-               ClientThread ct = new ClientThread(participant, participants);
+               
+               // Les deux premieres lignes recues sont le pseudo et le numero de room
+               String nickname = socIn.readLine();
+               String roomID = socIn.readLine();
+               int id = Integer.parseInt(roomID);
+               Participant p = new Participant(clientSocket, nickname);
+               allRooms[id].acceptParticipant(p);
+               ClientThread ct = new ClientThread(p, allRooms[id]);
+               
                ct.start();
            }
        } catch (Exception e) {

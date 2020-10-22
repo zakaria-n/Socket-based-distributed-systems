@@ -14,8 +14,8 @@ public class ClientThread extends Thread {
 
     private String clientNickname;
     private Socket clientSocket;
-    //private List<Participant> participants;
-    //private static final String path = "../data/history.txt";
+    //private List<Participants;
+    //private static final String path = "../data/history.txt";ipant> partic
     private ChatRoom room;
     private boolean justJoined = true;
     private volatile boolean exit = false;

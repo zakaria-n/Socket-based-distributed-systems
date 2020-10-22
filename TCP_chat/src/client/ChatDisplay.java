@@ -56,6 +56,12 @@ public class ChatDisplay extends Thread {
         }
     }
     
+    /**
+     * Mets à jour la liste des participants à partir d'une chaîne
+     * de caractères rassemblant les pseudos des participants séparés
+     * par "|"
+     * @param participants Liste des participants
+     */
     private void updateParticipants(String participants) {
         int cutPos = participants.indexOf("|");
         participants = participants.substring(cutPos+1);

@@ -1,1 +1,1 @@
-memberSearchIndex = [{"p":"stream","c":"ChatClient","l":"ChatClient()","url":"%3Cinit%3E()"},{"p":"stream","c":"ChatClient","l":"main(String[])","url":"main(java.lang.String[])"}]
+memberSearchIndex = [{"p":"stream","c":"ChatClient","l":"ChatClient()","url":"%3Cinit%3E()"},{"p":"stream","c":"ChatDisplay","l":"ChatDisplay(MulticastSocket)","url":"%3Cinit%3E(java.net.MulticastSocket)"},{"p":"stream","c":"ChatClient","l":"main(String[])","url":"main(java.lang.String[])"},{"p":"stream","c":"ChatDisplay","l":"run()"},{"p":"stream","c":"ChatDisplay","l":"socket"}]

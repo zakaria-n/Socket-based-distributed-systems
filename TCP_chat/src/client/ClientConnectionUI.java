@@ -7,8 +7,7 @@ import java.net.UnknownHostException;
 
 
 /**
- * User Interface pour la connexion d'un participant
- * au chat
+ * Fenêtre de connexion pour un participant du chat.
  * @author H. Faouz, N. Zakaria
  */
 public class ClientConnectionUI extends javax.swing.JFrame {
@@ -37,6 +36,7 @@ public class ClientConnectionUI extends javax.swing.JFrame {
         PortJLabel = new javax.swing.JLabel();
         NicknameJLabel = new javax.swing.JLabel();
         ErrorLabel = new javax.swing.JLabel();
+        roomIDBox = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Saeka Messenger Connection");
@@ -69,33 +69,43 @@ public class ClientConnectionUI extends javax.swing.JFrame {
         ErrorLabel.setForeground(new java.awt.Color(250, 76, 76));
         ErrorLabel.setText("...");
 
+        roomIDBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Room 0", "Room 1", "Room 2", "Room 3", "Room 4", "Room 5", "Room 6", "Room 7", "Room 8", "Room 9", " " }));
+        roomIDBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                roomIDBoxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(157, 157, 157)
-                .addComponent(JoinJButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(9, 176, Short.MAX_VALUE)
+                .addComponent(ErrorLabel)
+                .addContainerGap(192, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addGap(13, 13, 13)
-                .addComponent(HostJLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ServerHostTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
-                .addComponent(PortJLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ServerPortTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(NicknameJLabel)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(HostJLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ServerHostTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
+                        .addComponent(PortJLabel))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(NicknameJLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(NicknameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(NicknameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(9, 9, 9)
-                        .addComponent(ErrorLabel)))
+                    .addComponent(ServerPortTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(roomIDBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(31, 31, 31))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(141, 141, 141)
+                .addComponent(JoinJButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -103,19 +113,20 @@ public class ClientConnectionUI extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(30, 30, 30)
                 .addComponent(ErrorLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ServerHostTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ServerPortTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(HostJLabel)
                     .addComponent(PortJLabel))
-                .addGap(28, 28, 28)
+                .addGap(36, 36, 36)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(NicknameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(NicknameJLabel))
-                .addGap(27, 27, 27)
+                    .addComponent(NicknameJLabel)
+                    .addComponent(roomIDBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(28, 28, 28)
                 .addComponent(JoinJButton)
-                .addGap(80, 80, 80))
+                .addGap(70, 70, 70))
         );
 
         pack();
@@ -132,8 +143,8 @@ public class ClientConnectionUI extends javax.swing.JFrame {
         String host = ServerHostTextField.getText();
         String port = ServerPortTextField.getText();
         String nickname = NicknameTextField.getText();
-        
-        
+        String roomID = (String) roomIDBox.getSelectedItem();
+        roomID = roomID.substring(5);
         
         try {
             // creation socket ==> connexion
@@ -148,9 +159,10 @@ public class ClientConnectionUI extends javax.swing.JFrame {
             } else {
                 socOut.println(socket.getPort());
             }
-            
+            socOut.println(roomID);
             affichage = new ChatDisplay(socket);          
             crui = new ChatRoomUI(socket,affichage);
+            crui.setTitle("Saeka Messenger | Room " + roomID);
             affichage.setChatRoomUI(crui);
             affichage.start();
             crui.setVisible(true);
@@ -181,6 +193,10 @@ public class ClientConnectionUI extends javax.swing.JFrame {
     private void ServerHostTextFieldActionPerformed(java.awt.event.ActionEvent evt) {                                                    
         // TODO add your handling code here:
     }                                                   
+
+    private void roomIDBoxActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        // TODO add your handling code here:
+    }                                         
 
     /**
      * @param args the command line arguments
@@ -228,5 +244,6 @@ public class ClientConnectionUI extends javax.swing.JFrame {
     private javax.swing.JLabel PortJLabel;
     private javax.swing.JTextField ServerHostTextField;
     private javax.swing.JTextField ServerPortTextField;
+    private javax.swing.JComboBox<String> roomIDBox;
     // End of variables declaration                   
 }

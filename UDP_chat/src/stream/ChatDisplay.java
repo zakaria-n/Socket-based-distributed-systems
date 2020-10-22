@@ -14,7 +14,7 @@ public class ChatDisplay extends Thread {
     
     /**
      * Instancie un thread à partir de la socket multicast
-     * @param s
+     * @param multicastSocket 
      */
     ChatDisplay(MulticastSocket multicastSocket) {
         this.socket = multicastSocket;

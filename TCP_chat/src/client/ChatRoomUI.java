@@ -37,6 +37,7 @@ public class ChatRoomUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
     private void initComponents() {
 
+        jScrollPane3 = new javax.swing.JScrollPane();
         ChatInput = new javax.swing.JTextField();
         ChatDisplay = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -45,7 +46,7 @@ public class ChatRoomUI extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         LeaveButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        ParticipantsJList = new javax.swing.JList<String>();
+        ParticipantsJList = new javax.swing.JList<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Saeka Messenger");
@@ -160,7 +161,7 @@ public class ChatRoomUI extends javax.swing.JFrame {
     }                                      
 
     private void SendButtonActionPerformed(java.awt.event.ActionEvent evt) {                                           
-        
+
         try {
             String message = ChatInput.getText();
             PrintStream socOut = new PrintStream(clientSocket.getOutputStream());
@@ -169,11 +170,11 @@ public class ChatRoomUI extends javax.swing.JFrame {
         } catch (Exception e) {
             System.err.println("SendButtonActionPerformed error: " + e);
         }
-        
+
     }                                          
 
     private void LeaveButtonActionPerformed(java.awt.event.ActionEvent evt) {                                            
-        
+        // TODO add your handling code here:
         try {
             chatDisplay.exit();
             clientSocket.close();
@@ -195,9 +196,11 @@ public class ChatRoomUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     // End of variables declaration                   
     private Socket clientSocket;
     private ChatDisplay chatDisplay;
+    
     
     /**
      * Renvoie la zone de texte de la fenêtre pour l'affichage des messages
@@ -214,4 +217,6 @@ public class ChatRoomUI extends javax.swing.JFrame {
    public JList<String> getParticipantsJList() {
        return ParticipantsJList;
    }
-}
+}   
+    
+

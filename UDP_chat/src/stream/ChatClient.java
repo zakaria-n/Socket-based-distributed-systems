@@ -36,10 +36,12 @@ public class ChatClient {
             BufferedReader stdIn = null;
             stdIn = new BufferedReader(new InputStreamReader(System.in));
             System.out.println("Connected. Ready to chat...");
+            // Identifiant aléatoire pour l'instant
+            int id = (int) (Math.random()*10000);
             while (true) {
                 String msg = stdIn.readLine();
                 if(msg!=null) {
-                	msg = "From " + socket.getLocalAddress() +": " + msg;
+                	msg = "From " + id +": " + msg;
                     DatagramPacket packet = new DatagramPacket(msg.getBytes(), msg.length(), groupAddr, groupPort);
                     socket.send(packet);
                 } else {

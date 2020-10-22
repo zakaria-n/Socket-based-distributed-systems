@@ -14,21 +14,20 @@ public class ClientThread extends Thread {
 
     private String clientNickname;
     private Socket clientSocket;
-    private List<Participant> participants;
+    private ChatRoom room;
     private volatile boolean exit = false;
     
-    private static final String path = "../data/history.txt";
     
     /**
      * Constructeur principal. Instancie le thread avec 
-     * le participant correspondant au client et la liste des participants.
+     * le participant correspondant au client et la room du chat.
      * @param participant Participant géré par le thread
-     * @param participants Liste des participants
+     * @param chatRoom Room du chat que le participant a rejoint.
      */
-    public ClientThread(Participant participant, List<Participant> participants) {
+    public ClientThread(Participant participant, ChatRoom chatRoom) {
         this.clientNickname = participant.getNickname();
         this.clientSocket = participant.getClientSocket();
-        this.participants = participants;
+        this.room = chatRoom;
     }
 
     /**
@@ -73,15 +72,17 @@ public class ClientThread extends Thread {
     
     /**
      * Diffuse le message à tous les participants du chat
-     * (y compris le participant courant)
-     * @param message
+     * (y compris le participant courant). Envoie aussi un message 
+     * permettant de mettre à jour la liste des participants au niveau
+     * des clients
+     * @param message String contenant le message à diffuser.
      */
     private synchronized void broadcast(String message) {
         try {
         	
             //Premiere boucle pour mettre à jour l'ensemble des participants
-
-            Iterator<Participant> participantIterator = participants.iterator();
+        	String toSend = "";
+            Iterator<Participant> participantIterator = room.getParticipants().iterator();
             while (participantIterator.hasNext()) {
                 Participant p = participantIterator.next();
                 Socket s = p.getClientSocket();
@@ -90,17 +91,21 @@ public class ClientThread extends Thread {
                     output.write("CONNECTION_TEST\r\n".getBytes());
                 } catch (Exception e) {
                     System.out.println(p.getNickname() + " is disconnected");
+                    toSend += p.getNickname() + " left the chat.\r\n";
                     participantIterator.remove();
                 }
             }
 
             //Deuxieme boucle pour diffuser le message
             //Et mettre à jour la liste des participants en meme temps
-            for (Participant p : participants) {
+            for (Participant p : room.getParticipants()) {
                 Socket s = p.getClientSocket();
                 PrintStream socOut = new PrintStream(s.getOutputStream());
                 socOut.println(message);
                 socOut.println("UPDATE_PARTICIPANTS|" + getParticipantsList());
+                if (toSend.length()>0) {
+                    socOut.println(toSend);
+                }
             }
             
             //Sauvegarde du chat
@@ -119,7 +124,7 @@ public class ClientThread extends Thread {
         String history = "";
         try {
             BufferedReader reader;
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(path))));
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(room.getHistoryFile()))));
             String line = reader.readLine();
             while (line != null) {
                 history += line + "\n";
@@ -127,9 +132,9 @@ public class ClientThread extends Thread {
             }
             reader.close();
         } catch (FileNotFoundException ex) {
-            System.out.println(ex);
+            System.err.println(ex);
         } catch (IOException ex) {
-            System.out.println(ex);
+            System.err.println(ex);
         }
 
         return history;
@@ -141,7 +146,7 @@ public class ClientThread extends Thread {
      */
     private synchronized void saveHistory(String message) {
         try {
-            File file = new File(path);
+            File file = new File(room.getHistoryFile());
             if (file.createNewFile()) { // si le fichier n'existe pas déjà on le crée
                 System.out.println("The history file has been created.");
             } else {
@@ -151,7 +156,7 @@ public class ClientThread extends Thread {
             logWriter.append(message + "\n");
             logWriter.close();
         } catch (Exception e) {
-            System.out.println(e);
+            System.err.println(e);
         }
     }
 
@@ -162,7 +167,7 @@ public class ClientThread extends Thread {
      */
     private String getParticipantsList() {
         String list = "";
-        for (Participant p : participants) {
+        for (Participant p : room.getParticipants()) {
             list += (p.getNickname() + "|");
         }
         return list;
