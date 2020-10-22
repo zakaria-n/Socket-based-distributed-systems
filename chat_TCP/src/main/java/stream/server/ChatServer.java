@@ -25,15 +25,19 @@ public class ChatServer {
      */
     public static void main(String args[]) {
         ServerSocket listenSocket;
-
+        
+        
         if (args.length != 1) {
             System.out.println("Usage: java ChatServer <Server port>");
             System.exit(1);
         }
         
+        ChatRoom[] allRooms = new ChatRoom[10];
+        for (int i=0; i<10; i++){
+            allRooms[i] = new ChatRoom();
+        }
+        
         try {
-            List<Participant> participants;
-            participants = new ArrayList<Participant>();
             listenSocket = new ServerSocket(Integer.parseInt(args[0])); //port
             System.out.println("Server ready...");
             while (true) {
@@ -41,8 +45,11 @@ public class ChatServer {
                 System.out.println("Connexion from:" + clientSocket.getInetAddress());
                 BufferedReader socIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 String nickname = socIn.readLine();
-                participants.add(new Participant(clientSocket, nickname));
-                ClientThread ct = new ClientThread(nickname, clientSocket, participants);
+                String roomID = socIn.readLine();
+                int id = Integer.parseInt(roomID);
+                Participant p = new Participant(clientSocket, nickname);
+                allRooms[id].acceptParticipant(p);
+                ClientThread ct = new ClientThread(nickname, clientSocket, allRooms[id]);
                 //ct.broadcast(ct.loadHistory());
                 ct.start();
             }
