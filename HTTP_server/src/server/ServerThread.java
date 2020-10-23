@@ -94,7 +94,7 @@ public class ServerThread extends Thread {
      * Ce transfert en bytes est générique et est compatible avec plusieurs types de fichiers.
      * Dans le cas où la ressource a été retrouvée, on envoie un code de status 200, 404 si elle n'existe et 403 si on a pas les droits d'acces.
      * Dans ces deux derniers cas, la page HTML correspondante est retournee au client dans le corps de la reponse. 
-     * Si un erreur se produit cote serveur, il tente d'envoyer un code d'erreur 500.
+     * Si une erreur se produit cote serveur, il tente d'envoyer un code d'erreur 500.
      * @param out Flux d'ecriture binaire vers la socket client sur laquelle on envoie la reponse.
      * @param request_uri Reference vers le fichier que le client souhaite consulter.
      */
@@ -186,16 +186,24 @@ public class ServerThread extends Thread {
         return header;
     }
 
-    /**
-     * Envoie d'une réponse à une requete POST - Implementation de la methode
-     * HTTP POST. Similaire à la méthode putRequest à la seule différence que
-     * dans le cas d'édition d'un fichier existant post écrit le contenu à la
-     * suite de celui du fichier et ne l'écrase pas
-     *
-     * @param out flux d'écriture vers la socket client sur laquelle on envoie la reponse.
-     * @param in flux de lecture de socket client, dont on veut lire le body
-     * @param request_uri reference de la resource que le client veut creer ou editer.
-     */
+   /**
+     * Implementation du traitement d'une requete  HTTP POST - cette methode envoie du contenu au serveur a ecrire sur la ressource specificee par son URI.
+     * Cas de ressource statique : 
+     * Si la ressource n'exsiste pas, elle sera creee. Si elle existe deja, le contenu envoye y sera rajoute (concatene).
+     * On essaie de creer la ressource, de lire le corps de la requete et de l'ecrire dans le fichier cree.
+     * Cas de ressource dynamique : 
+     * Un premier test sur le type de la ressource est realise pour verifier s'il s'agit d'un script Python, auquel cas le serveur va essayer de l'executer, en
+     * lui fournissant comme argument ce qui a ete extrait du corps de la requete. 
+     * Attention e bien respecter le format en entree: "integer1 integer2", les deux entiers separes par un espace dont la somme est a calculer. Ce TP etant principalement
+     * axe sur la dimension reseau, on n'a pas porte un grand interet au formatage des donnees en E/S. 
+     * Le resultat de la somme peut etre consulte en realisant une requete GET sur le ressource sum.txt
+     * Si la ressource existait deja et que l'operation se passe bien, un code retour 200 est envoye au client.
+     * Si la ressource a du etre creee, on envoie un code 201 Created.
+     * Si une erreur se produit cote serveur, il tente d'envoyer un code d'erreur 500.
+     * @param out Flux d'ecriture binaire vers la socket client sur laquelle on envoie la reponse.
+     * @param in  Flux de lecture de la  socket client dont on veut lire le corps.
+     * @param request_uri Reference vers le fichier sur lequel le client souhaite ecrire.
+    */
     private void httpPOST(BufferedOutputStream out, BufferedInputStream in, String request_uri) {
         //Répond à une requête POST
         try {
@@ -245,17 +253,12 @@ public class ServerThread extends Thread {
     }
 
     /**
-     * Implémentation du traitement d'une requete POST - cette méthode envoie du
-     * contenu au serveur qui le stocke à l'adresse spécifiée / remplace son
-     * contenue s'il y a déjà une ressource existante à cet emplacement Tente de
-     * créer la ressource indiquee, de lire le corps de la requete et d'écrire
-     * ce contenu dans le fichier ressource créé
-     *
-     * @param out flux d'écriture vers le socket client pour lui renvoyer une
-     * en-tête / un header
-     * @param in flux de lecture du socket client, dont on veut lire le corps /
-     * body
-     * @param request_uri chemin du fichier que le client veut creer ou editer.
+     *  Implementation du traitement d'une requete  HTTP PUT 
+     * Similaire à la methode http POST à la seule différence que dans le cas d'édition d'une ressource existante
+     * on ecrase le fichier au lieu de venir ecrire a sa suite.
+     * @param out Flux d'ecriture binaire vers la socket client sur laquelle on envoie la reponse.
+     * @param in  Flux de lecture de la  socket client dont on veut lire le corps.
+     * @param request_uri Reference vers le fichier sur lequel le client souhaite ecrire.
      */
     private void httpPUT(BufferedOutputStream out, BufferedInputStream in, String request_uri) {
         //Répond à une requête PUT
@@ -299,14 +302,11 @@ public class ServerThread extends Thread {
 
 
     /**
-     * Envoie d'une réponse à une requete DELETE - Implementation de la methode
-     * HTTP DELETE. Cette méthode a pour but de supprimer la ressource indiquee
-     * par le client
-     *
-     * @param out flux d'ecriture binaire vers le socket client auquel il faut
-     * envoyer une reponse.
-     * @param request_uri chemin du fichier que le client veut supprimer.
-     */
+     * Implementation du traitement d'une requete  HTTP DELETE  
+     * Cette méthode supprimee la ressource indiquee par le client. 
+     * @param out Flux d'ecriture binaire vers la socket client sur laquelle on envoie la reponse.
+     * @param request_uri Reference vers le fichier que le client souhaite consulter.
+    */
 
     private void httpDELETE(BufferedOutputStream out, String request_uri) {
         //Répond à une requête DELETE
@@ -345,15 +345,10 @@ public class ServerThread extends Thread {
 
 
     /**
-     * Envoie d'une réponse à une requete HEAD - Implementation de la methode
-     * HTTP HEAD. a method to return the head of the Web page identified by the
-     * URL (the head contains summary information such as title, date of
-     * creation, etc. /!\ IL FAUDRAIT AUSSI RENVOYER LE TYPE DE CONTENU LE
-     * REFERRER POLICY, LA DATE etc.
-     *
-     * @param out Flux d'ecriture binaire vers le socket client auquel il faut
-     * envoyer une reponse.
-     * @param request_uri Chemin du fichier que le client veut consulter.
+     * Implementation du traitement d'une requete  HTTP HEAD.
+     * Cette methode retourne l'entete HTTP de la ressource identifiee par son URI.
+     * @param out Flux d'ecriture binaire vers la socket client sur laquelle on envoie la reponse.
+     * @param request_uri Reference vers le fichier que le client souhaite consulter.
      */
     private void httpHEAD(BufferedOutputStream out, String request_uri) {
         try {
