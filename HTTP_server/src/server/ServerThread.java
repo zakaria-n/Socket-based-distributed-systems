@@ -23,7 +23,7 @@ public class ServerThread extends Thread {
     private Socket socket;
 
     /**
-     * Constructeur qui prend en paramètre une socket 
+     * Constructeur qui prend en paramètre une socket. 
      * @param s Socket
      */
     public ServerThread(Socket s) {
