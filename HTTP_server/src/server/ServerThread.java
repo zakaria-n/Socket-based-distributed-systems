@@ -93,8 +93,8 @@ public class ServerThread extends Thread {
      * On essaie d'ouvrir la ressource et de l'envoyer sur le flux du client sous formes de byte.
      * Ce transfert en bytes est générique et est compatible avec plusieurs types de fichiers.
      * Dans le cas où la ressource a été retrouvée, on envoie un code de status 200, 404 si elle n'existe et 403 si on a pas les droits d'acces.
-     * Dans ces deux derniers cas, la page HTML correspondante est retournee au client dans le corps de la réponse. 
-     * Si un erreur se produit côté serveur, il tente d'envoyer un code d'erreur 500.
+     * Dans ces deux derniers cas, la page HTML correspondante est retournee au client dans le corps de la reponse. 
+     * Si un erreur se produit cote serveur, il tente d'envoyer un code d'erreur 500.
      * @param out Flux d'ecriture binaire vers la socket client sur laquelle on envoie la reponse.
      * @param request_uri Reference vers le fichier que le client souhaite consulter.
      */
@@ -152,14 +152,13 @@ public class ServerThread extends Thread {
     }
 
     /**
-     * Cette methode permet de creer un en-tete de reponse HTML, pour une
-     * reponse qui aura un corps. L'en-tete cree contient un code de retour et
-     * precise le type du serveur : Bot, le type de contenu du corps et la
-     * taille du corps en bytes.
-     *
-     * @param code
-     * @param type
-     * @length 
+     * Cette methode permet de creer une en-tete de reponse HTML, pour des reponses avec un corps. 
+     * Cette en-tete cree contient un code de retour et
+     * precise le type de contenu du corps, le nom du serveur et la taille du corps en bytes.
+     * @param code le code de reponse HTML
+     * @param type le type de contenu
+     * @length la taille du corps en bytes
+     * @return l'en-tete de reponse HTML.
      */
     private String makeHeader(String code, String type, long length) {
 
@@ -175,10 +174,8 @@ public class ServerThread extends Thread {
 
     /**
      * Cette methode renvoie une en-tête HTML simple, pour une reponse qui n'a
-     * pas de corps. L'en-tete cree contient un code de retour et precise le
-     * type du serveur : Bot.
-     *
-     * @param code le code de reponse HTML a fournir dans l'en-tete.
+     * pas de corps. L'en-tete cree contient un code de retour et precise le nom du serveur.
+     * @param code le code de reponse HTML.
      * @return l'en-tete de reponse HTML.
      *
     */
